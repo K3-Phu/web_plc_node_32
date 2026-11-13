@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Condition Monitoring | Predictive Maintenance Operations Console</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style/condition_monitoring.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">EE</div>
+            <div>
+                <h3>Predictive Maintenance</h3>
+                <p>Fault Alert System</p>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-item" onclick="window.location.href='index.html'">
+                <span class="nav-icon">⌂</span>
+                <span class="nav-text">Machine Overview</span>
+            </div>
+
+            <div class="nav-item active" onclick="window.location.href='condition_monitoring.html'">
+                <span class="nav-icon">⌁</span>
+                <span class="nav-text">Condition Monitoring</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='alarm_history.html'">
+                <span class="nav-icon">♧</span>
+                <span class="nav-text">Alarm History</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">⚒</span>
+                <span class="nav-text">Maintenance</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">♧</span>
+                <span class="nav-text">Experiment / Demo</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span class="nav-text">Settings</span>
+            </div>
+        </nav>
+
+        <button class="collapse" onclick="toggleSidebar()">
+            <span>‹ &nbsp; Collapse</span>
+        </button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-title">
+                <h3>Operations Console</h3>
+                <p>Predictive maintenance and fault monitoring</p>
+            </div>
+
+            <div class="topbar-right">
+                <span class="status-pill" id="server-status">Server: Connected</span>
+                <span class="status-pill stale" id="telemetry-status">Telemetry: Stale</span>
+                <span class="topbar-info" id="current-clock">10/11/2026, 08:35:26</span>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <section class="content">
+
+            <!-- SECTION 1: PAGE HEADER & CONTROLS -->
+            <div class="cm-header-area">
+                <a href="index.html" class="back-link">← Machine detail</a>
+
+                <div class="cm-title-row">
+                    <div>
+                        <h1 class="cm-page-title">Condition Monitoring</h1>
+                        <p class="cm-subtitle" id="cm-machine-name">SCREW ROTARY BARREL MACHINE / KV-5500</p>
+                        <p class="cm-uuid-line">
+                            <span id="cm-uuid">792388de-82bc-4e0c-a62f-681c148a5af1</span> ·
+                            Last recorded state: <span id="cm-header-state">PAUSE</span> ·
+                            <span id="cm-header-time">09/11/2026, 22:14:04</span>
+                        </p>
+                    </div>
+
+                    <span class="telemetry-badge" id="cm-top-badge">Telemetry stale</span>
+                </div>
+
+                <!-- Status Banner Strip -->
+                <div class="cm-status-strip">
+                    <strong>Last recorded state: <span id="strip-state">PAUSE</span></strong>
+                    <span id="strip-evidence">Stale / historical evidence</span>
+                    <span>Recorded quality: <b id="strip-quality" style="color:#0c382f;">GOOD</b></span>
+                    <span id="strip-connectivity">PLC / robot-data read: Current connectivity unknown</span>
+                </div>
+
+                <p class="cm-notif-note">Notification delivery history (sign-in required)</p>
+
+                <!-- Machine Dropdown -->
+                <div class="cm-machine-select-row">
+                    <label for="machine-select">Machine</label>
+                    <select id="machine-select" class="cm-select" onchange="triggerAjaxRefresh()">
+                        <option value="KV-5500">SCREW ROTARY BARREL MACHINE / KV-5500</option>
+                    </select>
+                </div>
+
+                <!-- Subsystem Tabs & Range Controls -->
+                <div class="cm-tabs-toolbar">
+                    <div class="cm-tabs">
+                        <button class="cm-tab active" onclick="switchSubsystemTab('robot', this)">Robot XYZ</button>
+                        <button class="cm-tab" onclick="switchSubsystemTab('cylinders', this)">Cylinders</button>
+                        <button class="cm-tab" onclick="switchSubsystemTab('screw', this)">Screw &amp; Vacuum</button>
+                        <button class="cm-tab" onclick="switchSubsystemTab('electrical', this)">Electrical</button>
+                    </div>
+
+                    <div class="cm-range-controls">
+                        <label for="history-range">History<br>range</label>
+                        <select id="history-range" class="cm-range-select" onchange="triggerAjaxRefresh()">
+                            <option value="24h">Last 24 hours</option>
+                            <option value="1h">Last 1 hour</option>
+                            <option value="7d">Last 7 days</option>
+                        </select>
+                        <button class="cm-refresh-btn" id="btn-ajax-refresh" onclick="triggerAjaxRefresh()" title="AJAX Refresh">↻</button>
+                    </div>
+                </div>
+
+                <p class="cm-query-meta" id="cm-query-window">
+                    09/11/2026, 08:35:21 – 10/11/2026, 08:35:21 · Asia/Bangkok · History bounded to 300 records per query. Summaries are cumulative unless labelled with a window.
+                </p>
+            </div>
+
+            <!-- SECTION 2: MACHINE OBSERVATIONS -->
+            <section class="card">
+                <h3 class="card-title">Machine observations</h3>
+                <p class="card-subtext">
+                    <span id="obs-freshness">Historical / stale</span> ·
+                    <span id="obs-timestamp">09/11/2026, 22:14:04</span> · Asia/Bangkok
+                </p>
+
+                <div class="obs-grid-5">
+                    <div class="obs-item">
+                        <label>State</label>
+                        <div class="val" id="obs-state">PAUSE</div>
+                    </div>
+                    <div class="obs-item">
+                        <label>PLC connection</label>
+                        <div class="val" id="obs-plc-conn">Read successful at historical observation</div>
+                    </div>
+                    <div class="obs-item">
+                        <label>Robot-data read status</label>
+                        <div class="val" id="obs-robot-read">Robot data read successful via PLC · historical</div>
+                    </div>
+                    <div class="obs-item">
+                        <label>Cycle time</label>
+                        <div class="val" id="obs-cycle-time">213.00 s · 09/11/2026, 22:09:14 · Historical / stale</div>
+                    </div>
+                    <div class="obs-item">
+                        <label>Verified active alarm</label>
+                        <div class="val" id="obs-active-alarm">No active authoritative alarm record</div>
+                    </div>
+                </div>
+
+                <div class="obs-grid-4">
+                    <div class="obs-item">
+                        <label>PLC Work OK / NG</label>
+                        <div class="val" id="obs-ok-ng">0 / 0</div>
+                    </div>
+                    <div class="obs-item">
+                        <label>PLC total · OK + NG</label>
+                        <div class="val" id="obs-total">0</div>
+                    </div>
+                    <div class="obs-item">
+                        <label>Yield / NG rate · PLC counter ratios</label>
+                        <div class="val" id="obs-yield">Unavailable</div>
+                    </div>
+                    <div class="obs-item">
+                        <label>Counter source time</label>
+                        <div class="val" id="obs-counter-time">09/11/2026, 22:14:04</div>
+                    </div>
+                </div>
+
+                <p class="obs-footnote">
+                    Robot-data read status is PLC-mirrored evidence, not independently verified RCON health. RUNNING does not establish health.
+                </p>
+
+                <div class="context-section">
+                    <div class="context-label">Operating context and quality</div>
+                    <div class="context-links">
+                        <a href="index.html">Overview</a>
+                        <a href="index.html#health-ring-progress">Health</a>
+                        <a href="#robot-sampled-section">Robot</a>
+                        <a href="#subsystem-anchor" onclick="switchSubsystemByName('cylinders')">Cylinders</a>
+                        <a href="#subsystem-anchor" onclick="switchSubsystemByName('electrical')">Electrical</a>
+                        <a href="alarm_history.html">Alerts</a>
+                    </div>
+                    <div class="context-label" style="margin-bottom:0;">Observed PLC alarm bits</div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: PLC LIFETIME USAGE COUNTERS -->
+            <section class="card" id="subsystem-anchor">
+                <h3 class="card-title">PLC lifetime usage counters</h3>
+                <p class="card-subtext">PLC-reported totals | hardware coherence requires review | DISABLED</p>
+
+                <div class="lifetime-grid">
+                    <!-- X -->
+                    <div class="lifetime-box">
+                        <h4>X</h4>
+                        <div class="lifetime-val" id="lt-x-val">— m</div>
+                        <div class="lifetime-status" id="lt-x-status">DISABLED</div>
+                        <div class="lifetime-meta">
+                            <div>Whole metres DM4008 / remainder DM4006 · UINT32 low word first</div>
+                            <div>Software baseline: Not set</div>
+                            <div style="margin-top:4px;">Since software baseline: <span id="lt-x-since">Unavailable</span></div>
+                            <div style="margin-top:4px;">No accepted observation | Source unavailable</div>
+                        </div>
+                    </div>
+
+                    <!-- Y -->
+                    <div class="lifetime-box">
+                        <h4>Y</h4>
+                        <div class="lifetime-val" id="lt-y-val">— m</div>
+                        <div class="lifetime-status" id="lt-y-status">DISABLED</div>
+                        <div class="lifetime-meta">
+                            <div>Whole metres DM4028 / remainder DM4026 · UINT32 low word first</div>
+                            <div>Software baseline: Not set</div>
+                            <div style="margin-top:4px;">Since software baseline: <span id="lt-y-since">Unavailable</span></div>
+                            <div style="margin-top:4px;">No accepted observation | Source unavailable</div>
+                        </div>
+                    </div>
+
+                    <!-- Z -->
+                    <div class="lifetime-box">
+                        <h4>Z</h4>
+                        <div class="lifetime-val" id="lt-z-val">— m</div>
+                        <div class="lifetime-status" id="lt-z-status">DISABLED</div>
+                        <div class="lifetime-meta">
+                            <div>Whole metres DM4048 / remainder DM4046 · UINT32 low word first</div>
+                            <div>Software baseline: Not set</div>
+                            <div style="margin-top:4px;">Since software baseline: <span id="lt-z-since">Unavailable</span></div>
+                            <div style="margin-top:4px;">No accepted observation | Source unavailable</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="obs-footnote" style="margin-top: 12px;">
+                    CY values are PLC completed-round-trip totals, separate from backend sampled observed cycles. No workpiece, yield, motion-time or health claim. Software baselines never reset the PLC. Configuration and baseline actions are in authenticated Settings.
+                </p>
+            </section>
+
+            <!-- SECTION 4: 4 KPI MINI-CARDS -->
+            <div class="kpi-strip-4">
+                <div class="kpi-mini-card">
+                    <div class="kpi-icon-circle">∿</div>
+                    <div class="kpi-mini-info">
+                        <label>Observed State</label>
+                        <strong id="kpi-observed-state">Recorded PAUSE</strong>
+                        <span id="kpi-observed-sub">Stale / historical evidence</span>
+                    </div>
+                </div>
+
+                <div class="kpi-mini-card">
+                    <div class="kpi-icon-circle">∿</div>
+                    <div class="kpi-mini-info">
+                        <label>Data Quality</label>
+                        <strong id="kpi-data-quality">Telemetry stale</strong>
+                        <span>Recorded source quality</span>
+                    </div>
+                </div>
+
+                <div class="kpi-mini-card">
+                    <div class="kpi-icon-circle">∿</div>
+                    <div class="kpi-mini-info">
+                        <label>Current Conditions</label>
+                        <strong id="kpi-conditions">0 active</strong>
+                        <span>Observational evidence</span>
+                    </div>
+                </div>
+
+                <div class="kpi-mini-card">
+                    <div class="kpi-icon-circle">⚡</div>
+                    <div class="kpi-mini-info">
+                        <label>Maintenance</label>
+                        <strong id="kpi-maintenance">Limit not configured</strong>
+                        <span>&nbsp;</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: ROBOT X / Y / Z SAMPLED CARDS -->
+            <div class="sampled-grid-3" id="robot-sampled-section">
+                <!-- Robot X -->
+                <article class="sampled-card">
+                    <h3 class="card-title">Robot X · sampled</h3>
+                    <p class="card-subtext" id="sampled-x-sub">Historical / unavailable · 09/11/2026, 22:14:04</p>
+                    <div class="sampled-rows">
+                        <div class="sampled-row">
+                            <span>Position (mm)</span>
+                            <strong id="sampled-x-pos">95.20 mm</strong>
+                        </div>
+                        <div class="sampled-row">
+                            <span>Observed current (A)</span>
+                            <strong id="sampled-x-cur">0.538 A</strong>
+                        </div>
+                        <div class="sampled-row">
+                            <span>Command speed (mm/s)</span>
+                            <strong id="sampled-x-spd">0.00 mm/s</strong>
+                        </div>
+                    </div>
+                    <p class="sampled-note">Command speed is not measured velocity. Current does not establish wear or health.</p>
+                </article>
+
+                <!-- Robot Y -->
+                <article class="sampled-card">
+                    <h3 class="card-title">Robot Y · sampled</h3>
+                    <p class="card-subtext" id="sampled-y-sub">Historical / unavailable · 09/11/2026, 22:14:04</p>
+                    <div class="sampled-rows">
+                        <div class="sampled-row">
+                            <span>Position (mm)</span>
+                            <strong id="sampled-y-pos">291.58 mm</strong>
+                        </div>
+                        <div class="sampled-row">
+                            <span>Observed current (A)</span>
+                            <strong id="sampled-y-cur">0.538 A</strong>
+                        </div>
+                        <div class="sampled-row">
+                            <span>Command speed (mm/s)</span>
+                            <strong id="sampled-y-spd">0.00 mm/s</strong>
+                        </div>
+                    </div>
+                    <p class="sampled-note">Command speed is not measured velocity. Current does not establish wear or health.</p>
+                </article>
+
+                <!-- Robot Z -->
+                <article class="sampled-card">
+                    <h3 class="card-title">Robot Z · sampled</h3>
+                    <p class="card-subtext" id="sampled-z-sub">Historical / unavailable · 09/11/2026, 22:14:04</p>
+                    <div class="sampled-rows">
+                        <div class="sampled-row">
+                            <span>Position (mm)</span>
+                            <strong id="sampled-z-pos">0.00 mm</strong>
+                        </div>
+                        <div class="sampled-row">
+                            <span>Observed current (A)</span>
+                            <strong id="sampled-z-cur">0.538 A</strong>
+                        </div>
+                        <div class="sampled-row">
+                            <span>Command speed (mm/s)</span>
+                            <strong id="sampled-z-spd">0.00 mm/s</strong>
+                        </div>
+                    </div>
+                    <p class="sampled-note">Command speed is not measured velocity. Current does not establish wear or health.</p>
+                </article>
+            </div>
+
+            <!-- SECTION 6: AXIS STATUS WORD TABLE -->
+            <div class="axis-table-wrap">
+                <table class="axis-status-table">
+                    <thead>
+                        <tr>
+                            <th>Axis</th>
+                            <th>Observation</th>
+                            <th>Raw code</th>
+                            <th>Status word / indicators</th>
+                            <th>Word source times</th>
+                        </tr>
+                    </thead>
+                    <tbody id="axis-status-tbody">
+                        <tr>
+                            <td>X</td>
+                            <td id="tbl-x-obs">STALE</td>
+                            <td id="tbl-x-code">0x0000 (0)</td>
+                            <td>
+                                <span id="tbl-x-word">0x1012</span><br>
+                                <span style="color:#69847e;font-size:10.5px;">Recorded ALML bit unavailable; Parameter 151 unverified</span>
+                            </td>
+                            <td id="tbl-x-time">
+                                Code 09/11/2026, 22:14:04<br>
+                                Status 09/11/2026, 22:14:04
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Y</td>
+                            <td id="tbl-y-obs">STALE</td>
+                            <td id="tbl-y-code">0x0000 (0)</td>
+                            <td>
+                                <span id="tbl-y-word">0x1112</span><br>
+                                <span style="color:#69847e;font-size:10.5px;">Recorded ALML bit unavailable; Parameter 151 unverified</span>
+                            </td>
+                            <td id="tbl-y-time">
+                                Code 09/11/2026, 22:14:04<br>
+                                Status 09/11/2026, 22:14:04
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Z</td>
+                            <td id="tbl-z-obs">STALE</td>
+                            <td id="tbl-z-code">0x0000 (0)</td>
+                            <td>
+                                <span id="tbl-z-word">0x1012</span><br>
+                                <span style="color:#69847e;font-size:10.5px;">Recorded ALML bit unavailable; Parameter 151 unverified</span>
+                            </td>
+                            <td id="tbl-z-time">
+                                Code 09/11/2026, 22:14:04<br>
+                                Status 09/11/2026, 22:14:04
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="axis-table-foot">
+                    ME0384-8B: ALM indicates operation-cancel level or higher. ALM off does not exclude Message-level warnings. Nonzero code with ALM off has unconfirmed activity/meaning. ALML depends on Parameter 151; ALML off does not establish warning absence. Read coherence is not established. This panel does not create alarms, notifications or downtime.
+                </div>
+            </div>
+
+            <!-- SECTION 7: ROBOT AXIS CURRENT TRENDS + CONDITION SUMMARY -->
+            <div class="row-2col-asym">
+                <!-- Left: Robot Axis Current Trends -->
+                <section class="card">
+                    <h3 class="card-title">Robot Axis Current Trends</h3>
+                    <p class="card-subtext">Normalized RCON current · X / Y / Z</p>
+
+                    <div class="chart-legend">
+                        <span class="legend-item"><i class="legend-box" style="background:#059669;"></i> X Axis (A)</span>
+                        <span class="legend-item"><i class="legend-box" style="background:#2563eb;"></i> Y Axis (A)</span>
+                        <span class="legend-item"><i class="legend-box" style="background:#7c3aed;"></i> Z Axis (A)</span>
+                    </div>
+
+                    <div class="chart-canvas-wrap" id="wrap-current-trend">
+                        <canvas id="canvas-current-trend"></canvas>
+                        <div class="chart-tooltip" id="tooltip-current-trend"></div>
+                    </div>
+
+                    <div class="chart-footer-meta" id="meta-current-trend">
+                        300 of 11025 records · newest records only; incomplete range<br>
+                        Loaded evidence · 09/11/2026, 22:12:29 – 09/11/2026, 22:14:04
+                    </div>
+                </section>
+
+                <!-- Right: Condition Summary -->
+                <section class="card">
+                    <h3 class="card-title">Condition Summary</h3>
+                    <div class="cond-summary-list">
+                        <div class="cond-summary-item">
+                            <div class="cond-summary-head">
+                                <span class="legend-dot" style="background:#059669;"></span>
+                                <span id="cond-sum-x">X Axis · Rule disabled</span>
+                            </div>
+                            <div class="cond-summary-sub">Continuity uncertain; recovery is not established.</div>
+                        </div>
+
+                        <div class="cond-summary-item">
+                            <div class="cond-summary-head">
+                                <span class="legend-dot" style="background:#2563eb;"></span>
+                                <span id="cond-sum-y">Y Axis · Rule disabled</span>
+                            </div>
+                            <div class="cond-summary-sub">Continuity uncertain; recovery is not established.</div>
+                        </div>
+
+                        <div class="cond-summary-item">
+                            <div class="cond-summary-head">
+                                <span class="legend-dot" style="background:#7c3aed;"></span>
+                                <span id="cond-sum-z">Z Axis · Rule disabled</span>
+                            </div>
+                            <div class="cond-summary-sub">Continuity uncertain; recovery is not established.</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECTION 8: PEAK CURRENT HISTORY + CYCLE TIME TREND + CONDITION EVENTS -->
+            <div class="row-3col">
+                <!-- Col 1: Peak Current History -->
+                <section class="card">
+                    <h3 class="card-title">Peak Current History</h3>
+                    <p class="card-subtext">Persisted 1-minute windows · not per-cycle</p>
+
+                    <div class="chart-legend">
+                        <span class="legend-item"><i class="legend-box" style="background:#059669;"></i> X Axis</span>
+                        <span class="legend-item"><i class="legend-box" style="background:#2563eb;"></i> Y Axis</span>
+                        <span class="legend-item"><i class="legend-box" style="background:#7c3aed;"></i> Z Axis</span>
+                    </div>
+
+                    <div class="chart-canvas-wrap small" id="wrap-peak-current">
+                        <canvas id="canvas-peak-current"></canvas>
+                        <div class="chart-tooltip" id="tooltip-peak-current"></div>
+                    </div>
+
+                    <div class="chart-footer-meta" id="meta-peak-current">
+                        300 of 43392 records · newest records only; incomplete range<br>
+                        Loaded evidence · 09/11/2026, 22:13:27 – 09/11/2026, 22:14:04
+                    </div>
+                </section>
+
+                <!-- Col 2: Cycle Time Trend -->
+                <section class="card">
+                    <h3 class="card-title">Cycle Time Trend</h3>
+                    <p class="card-subtext">Persisted observations · no cycle association inferred</p>
+
+                    <div class="chart-legend">
+                        <span class="legend-item"><i class="legend-box" style="background:#059669;"></i> Observed cycle time (s)</span>
+                    </div>
+
+                    <div class="chart-canvas-wrap small" id="wrap-cycle-trend">
+                        <canvas id="canvas-cycle-trend"></canvas>
+                        <div class="chart-tooltip" id="tooltip-cycle-trend"></div>
+                    </div>
+
+                    <div class="chart-footer-meta">
+                        188 of 188 records · recorded evidence only; coverage not established<br>
+                        Loaded evidence · 09/11/2026, 15:22:51 – 09/11/2026, 22:09:14
+                    </div>
+                </section>
+
+                <!-- Col 3: Condition Events -->
+                <section class="card">
+                    <h3 class="card-title">Condition Events</h3>
+                    <p class="card-subtext">Immutable transitions · latest 100, all time</p>
+
+                    <div class="events-kv-list">
+                        <div class="events-kv-row">
+                            <span>Loaded transitions</span>
+                            <strong id="ev-loaded">0</strong>
+                        </div>
+                        <div class="events-kv-row">
+                            <span>Total recorded</span>
+                            <strong id="ev-total">0</strong>
+                        </div>
+                        <div class="events-kv-row">
+                            <span>Recovery</span>
+                            <strong>Requires continuous valid evidence</strong>
+                        </div>
+                    </div>
+
+                    <p class="sampled-note" style="margin-top:16px;">Separate from machine alarms and downtime.</p>
+                </section>
+            </div>
+
+            <!-- SECTION 9: ACCUMULATED TRAVEL + RECENT CONDITION TRANSITIONS -->
+            <div class="row-2col-equal">
+                <!-- Left: Accumulated Travel -->
+                <section class="card">
+                    <h3 class="card-title">Accumulated Travel</h3>
+                    <p class="card-subtext">Observed distance · Independent maintenance limits</p>
+
+                    <div class="acc-travel-list">
+                        <div class="acc-travel-item">
+                            <span class="acc-axis-tag x">X Axis</span>
+                            <div>
+                                <strong id="acc-x-title">Not configured</strong>
+                                <div class="card-subtext" id="acc-x-sub">Limit not configured · No data</div>
+                            </div>
+                        </div>
+
+                        <div class="acc-travel-item">
+                            <span class="acc-axis-tag y">Y Axis</span>
+                            <div>
+                                <strong id="acc-y-title">Not configured</strong>
+                                <div class="card-subtext" id="acc-y-sub">Limit not configured · No data</div>
+                            </div>
+                        </div>
+
+                        <div class="acc-travel-item">
+                            <span class="acc-axis-tag z">Z Axis</span>
+                            <div>
+                                <strong id="acc-z-title">Not configured</strong>
+                                <div class="card-subtext" id="acc-z-sub">Limit not configured · No data</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right: Recent Condition Transitions -->
+                <section class="card">
+                    <h3 class="card-title">Recent Condition Transitions</h3>
+                    <p class="card-subtext">Occurrence identity is retained across uncertainty</p>
+
+                    <table class="transitions-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Axis</th>
+                                <th>Transition</th>
+                                <th>Occurrence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4">No recorded condition transitions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="chart-footer-meta">
+                        0 of 0 records · recorded evidence only; coverage not established
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECTION 10: RECORDED XYZ POSITION + RECORDED XYZ COMMAND SPEED -->
+            <div class="row-2col-pos">
+                <!-- Left: Recorded XYZ position -->
+                <section class="card">
+                    <h3 class="card-title">Recorded XYZ position</h3>
+                    <p class="card-subtext">Ordered source observations; points do not imply continuous motion.</p>
+
+                    <div class="chart-canvas-wrap" id="wrap-xyz-pos" style="margin-top:10px;">
+                        <canvas id="canvas-xyz-pos"></canvas>
+                        <div class="chart-tooltip" id="tooltip-xyz-pos"></div>
+                    </div>
+
+                    <div style="text-align:center; font-size:10.5px; color:#69847e; margin-top:4px;">
+                        Source time · Asia/Bangkok (full date in tooltip)
+                    </div>
+                    <div class="chart-legend" style="margin-top:6px;">
+                        <span class="legend-item"><i class="legend-dot" style="background:#059669;"></i> X</span>
+                        <span class="legend-item"><i class="legend-dot" style="background:#2563eb;"></i> Y</span>
+                        <span class="legend-item"><i class="legend-dot" style="background:#7c3aed;"></i> Z</span>
+                    </div>
+                </section>
+
+                <!-- Right: Recorded XYZ command speed -->
+                <section class="card">
+                    <h3 class="card-title">Recorded XYZ command speed</h3>
+                    <p class="card-subtext">Command speed is not measured velocity. Missing or invalid samples remain gaps.</p>
+
+                    <div class="chart-canvas-wrap" id="wrap-xyz-speed" style="margin-top:10px;">
+                        <canvas id="canvas-xyz-speed"></canvas>
+                        <div class="chart-tooltip" id="tooltip-xyz-speed"></div>
+                    </div>
+
+                    <div style="text-align:center; font-size:10.5px; color:#69847e; margin-top:4px;">
+                        Source time · Asia/Bangkok (full date in tooltip)
+                    </div>
+                    <div class="chart-legend" style="margin-top:6px;">
+                        <span class="legend-item"><i class="legend-dot" style="background:#059669;"></i> X</span>
+                        <span class="legend-item"><i class="legend-dot" style="background:#2563eb;"></i> Y</span>
+                        <span class="legend-item"><i class="legend-dot" style="background:#7c3aed;"></i> Z</span>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SECTION 11: RAW PLC ACCUMULATED-DISTANCE HISTORY -->
+            <section class="card">
+                <h3 class="card-title">Raw PLC accumulated-distance history</h3>
+                <p class="card-subtext">
+                    Captured raw observations · COHERENCE_UNVERIFIED. No accepted increments, baseline usage or continuous coverage inferred.
+                </p>
+                <p style="font-size:12px; color:#527069; margin-top:14px;" id="raw-distance-msg">
+                    No valid recorded samples in the selected range.
+                </p>
+            </section>
+
+            <p class="bottom-disclaimer">
+                Observed current supports inspection. It does not directly measure mechanical wear or predict failure. Lines break at invalid evidence; without a governed continuity bound, observations are shown as points.
+            </p>
+
+        </section>
+    </main>
+
+    <!-- JAVASCRIPT: AJAX + FIREBASE + INTERACTIVE CHARTS -->
+    <script>
+        const FIREBASE_URL = "https://plc-connectwith-esp32-default-rtdb.asia-southeast1.firebasedatabase.app/plcData.json";
+
+        // Default historical dataset matching screenshots
+        let cmState = {
+            uuid: "792388de-82bc-4e0c-a62f-681c148a5af1",
+            machineName: "SCREW ROTARY BARREL MACHINE / KV-5500",
+            state: "PAUSE",
+            freshness: "Historical / stale",
+            recordedTime: "09/11/2026, 22:14:04",
+            cycleTime: 213.00,
+            cycleTimeRecorded: "09/11/2026, 22:09:14",
+            ok: 0,
+            ng: 0,
+            total: 0,
+            yieldText: "Unavailable",
+            posX: 95.20,
+            posY: 291.58,
+            posZ: 0.00,
+            curX: 0.538,
+            curY: 0.538,
+            curZ: 0.538,
+            spdX: 0.00,
+            spdY: 0.00,
+            spdZ: 0.00,
+            travelX: null,
+            travelY: null,
+            travelZ: null,
+            limitKm: 2500.0,
+            samples: [],
+            cycleSamples: []
+        };
+
+        // Build default 30-point series for initial render (matches screenshot 3 & 4)
+        function initDefaultSeries() {
+            const baseTimes = [
+                "09/11/2026, 22:12:29", "09/11/2026, 22:12:33", "09/11/2026, 22:12:38",
+                "09/11/2026, 22:12:42", "09/11/2026, 22:12:47", "09/11/2026, 22:12:51",
+                "09/11/2026, 22:12:56", "09/11/2026, 22:13:00", "09/11/2026, 22:13:04",
+                "09/11/2026, 22:13:08", "09/11/2026, 22:13:13", "09/11/2026, 22:13:18",
+                "09/11/2026, 22:13:21", "09/11/2026, 22:13:25", "09/11/2026, 22:13:29",
+                "09/11/2026, 22:13:33", "09/11/2026, 22:13:38", "09/11/2026, 22:13:44",
+                "09/11/2026, 22:13:50", "09/11/2026, 22:13:56", "09/11/2026, 22:14:04"
+            ];
+            cmState.samples = baseTimes.map(ts => ({
+                timestamp: ts,
+                x: 0.538,
+                y: 0.538,
+                z: 0.538,
+                posX: 95.20,
+                posY: 291.58,
+                posZ: 0.00,
+                spdX: 0,
+                spdY: 0,
+                spdZ: 0
+            }));
+
+            // Cycle time trend points (flat 0 with right-end scatter dots 80..520s like screenshot 3)
+            const cycTimes = [
+                { t: "09/11/2026, 15:22:51", v: 6.0 },
+                { t: "09/11/2026, 17:37:29", v: 6.0 },
+                { t: "09/11/2026, 17:38:06", v: 6.0 },
+                { t: "09/11/2026, 17:38:54", v: 6.0 },
+                { t: "09/11/2026, 17:39:35", v: 6.0 },
+                { t: "09/11/2026, 17:40:10", v: 6.0 },
+                { t: "09/11/2026, 21:55:10", v: 6.0 },
+                { t: "09/11/2026, 22:01:12", v: 320.0, scatter: true },
+                { t: "09/11/2026, 22:03:40", v: 185.0, scatter: true },
+                { t: "09/11/2026, 22:05:19", v: 410.0, scatter: true },
+                { t: "09/11/2026, 22:06:55", v: 525.0, scatter: true },
+                { t: "09/11/2026, 22:08:11", v: 92.0, scatter: true },
+                { t: "09/11/2026, 22:09:14", v: 213.0, scatter: true }
+            ];
+            cmState.cycleSamples = cycTimes;
+        }
+
+        // =====================================================
+        // AJAX FETCH FROM data.json AND FIREBASE
+        // =====================================================
+        async function fetchConditionMonitoringAjax() {
+            const btn = document.getElementById("btn-ajax-refresh");
+            if (btn) btn.classList.add("spinning");
+
+            let loadedData = null;
+
+            // 1. Try Firebase Realtime Database first via AJAX
+            try {
+                const fbRes = await fetch(FIREBASE_URL + "?t=" + Date.now(), { cache: "no-store" });
+                if (fbRes.ok) {
+                    const fbJson = await fbRes.json();
+                    if (fbJson && (fbJson.charts || fbJson.robot || fbJson.conditionMonitoring)) {
+                        loadedData = fbJson;
+                    }
+                }
+            } catch (e) {
+                // fallback to local JSON
+            }
+
+            // 2. Fetch local data.json via AJAX
+            try {
+                const localRes = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
+                if (localRes.ok) {
+                    const localJson = await localRes.json();
+                    loadedData = Object.assign({}, localJson, loadedData || {});
+                }
+            } catch (e) {
+                console.warn("[AJAX] Using default Condition Monitoring dataset:", e);
+            }
+
+            if (loadedData) {
+                applyConditionData(loadedData);
+            } else {
+                renderConditionUI();
+            }
+
+            setTimeout(() => {
+                if (btn) btn.classList.remove("spinning");
+            }, 350);
+        }
+
+        function applyConditionData(data) {
+            const cm = data.conditionMonitoring || {};
+
+            if (data.machine && data.machine.name) {
+                cmState.machineName = data.machine.name;
+            }
+
+            // Robot current & travel from live data.json / Firebase
+            if (data.robot) {
+                if (data.robot.xCurrent !== undefined) cmState.curX = Number(data.robot.xCurrent);
+                if (data.robot.yCurrent !== undefined) cmState.curY = Number(data.robot.yCurrent);
+                if (data.robot.zCurrent !== undefined) cmState.curZ = Number(data.robot.zCurrent);
+                if (data.robot.xTravel !== undefined) cmState.travelX = Number(data.robot.xTravel);
+                if (data.robot.yTravel !== undefined) cmState.travelY = Number(data.robot.yTravel);
+                if (data.robot.zTravel !== undefined) cmState.travelZ = Number(data.robot.zTravel);
+                if (data.robot.approvedLimit !== undefined) cmState.limitKm = Number(data.robot.approvedLimit);
+                if (data.robot.recordedTime) cmState.recordedTime = data.robot.recordedTime;
+            }
+
+            // Override with conditionMonitoring block if present
+            if (cm.uuid) cmState.uuid = cm.uuid;
+            if (cm.lastRecordedState) cmState.state = cm.lastRecordedState;
+            if (cm.recordedTime) cmState.recordedTime = cm.recordedTime;
+            if (cm.cycleTime !== undefined) cmState.cycleTime = Number(cm.cycleTime);
+            if (cm.posX !== undefined) cmState.posX = Number(cm.posX);
+            if (cm.posY !== undefined) cmState.posY = Number(cm.posY);
+            if (cm.posZ !== undefined) cmState.posZ = Number(cm.posZ);
+            if (cm.curX !== undefined) cmState.curX = Number(cm.curX);
+            if (cm.curY !== undefined) cmState.curY = Number(cm.curY);
+            if (cm.curZ !== undefined) cmState.curZ = Number(cm.curZ);
+            if (cm.spdX !== undefined) cmState.spdX = Number(cm.spdX);
+            if (cm.spdY !== undefined) cmState.spdY = Number(cm.spdY);
+            if (cm.spdZ !== undefined) cmState.spdZ = Number(cm.spdZ);
+
+            if (data.metrics) {
+                cmState.ok = data.metrics.ok ?? cmState.ok;
+                cmState.ng = data.metrics.ng ?? cmState.ng;
+                cmState.total = data.metrics.total ?? (cmState.ok + cmState.ng);
+                if (cmState.total > 0) {
+                    const yRate = ((cmState.ok / cmState.total) * 100).toFixed(2);
+                    const nRate = (100 - Number(yRate)).toFixed(2);
+                    cmState.yieldText = `${yRate} % / ${nRate} %`;
+                }
+            }
+
+            // Chart samples from charts.robotCurrentTrend.samples
+            if (data.charts && data.charts.robotCurrentTrend && Array.isArray(data.charts.robotCurrentTrend.samples) && data.charts.robotCurrentTrend.samples.length > 0) {
+                cmState.samples = data.charts.robotCurrentTrend.samples.map(s => ({
+                    timestamp: s.timestamp,
+                    x: Number(s.x ?? cmState.curX),
+                    y: Number(s.y ?? cmState.curY),
+                    z: Number(s.z ?? cmState.curZ),
+                    posX: Number(s.posX ?? cmState.posX),
+                    posY: Number(s.posY ?? cmState.posY),
+                    posZ: Number(s.posZ ?? cmState.posZ),
+                    spdX: Number(s.spdX ?? 0),
+                    spdY: Number(s.spdY ?? 0),
+                    spdZ: Number(s.spdZ ?? 0)
+                }));
+                const latest = cmState.samples[cmState.samples.length - 1];
+                if (latest) {
+                    cmState.curX = latest.x;
+                    cmState.curY = latest.y;
+                    cmState.curZ = latest.z;
+                    cmState.recordedTime = latest.timestamp;
+                }
+            }
+
+            renderConditionUI();
+        }
+
+        function renderConditionUI() {
+            document.getElementById("cm-machine-name").textContent = cmState.machineName;
+            document.getElementById("cm-uuid").textContent = cmState.uuid;
+            document.getElementById("cm-header-state").textContent = cmState.state;
+            document.getElementById("cm-header-time").textContent = cmState.recordedTime;
+            document.getElementById("strip-state").textContent = cmState.state;
+
+            document.getElementById("obs-timestamp").textContent = cmState.recordedTime;
+            document.getElementById("obs-state").textContent = cmState.state;
+            document.getElementById("obs-cycle-time").textContent = `${cmState.cycleTime.toFixed(2)} s · ${cmState.cycleTimeRecorded} · Historical / stale`;
+            document.getElementById("obs-ok-ng").textContent = `${cmState.ok} / ${cmState.ng}`;
+            document.getElementById("obs-total").textContent = cmState.total;
+            document.getElementById("obs-yield").textContent = cmState.yieldText;
+            document.getElementById("obs-counter-time").textContent = cmState.recordedTime;
+
+            // Sampled X / Y / Z cards
+            document.getElementById("sampled-x-sub").textContent = `Historical / unavailable · ${cmState.recordedTime}`;
+            document.getElementById("sampled-y-sub").textContent = `Historical / unavailable · ${cmState.recordedTime}`;
+            document.getElementById("sampled-z-sub").textContent = `Historical / unavailable · ${cmState.recordedTime}`;
+
+            document.getElementById("sampled-x-pos").textContent = `${cmState.posX.toFixed(2)} mm`;
+            document.getElementById("sampled-y-pos").textContent = `${cmState.posY.toFixed(2)} mm`;
+            document.getElementById("sampled-z-pos").textContent = `${cmState.posZ.toFixed(2)} mm`;
+
+            document.getElementById("sampled-x-cur").textContent = `${cmState.curX.toFixed(3)} A`;
+            document.getElementById("sampled-y-cur").textContent = `${cmState.curY.toFixed(3)} A`;
+            document.getElementById("sampled-z-cur").textContent = `${cmState.curZ.toFixed(3)} A`;
+
+            document.getElementById("sampled-x-spd").textContent = `${cmState.spdX.toFixed(2)} mm/s`;
+            document.getElementById("sampled-y-spd").textContent = `${cmState.spdY.toFixed(2)} mm/s`;
+            document.getElementById("sampled-z-spd").textContent = `${cmState.spdZ.toFixed(2)} mm/s`;
+
+            // Accumulated travel section if live data exists
+            if (cmState.travelX !== null) {
+                document.getElementById("acc-x-title").textContent = `${cmState.travelX.toFixed(2)} m`;
+                document.getElementById("acc-x-sub").textContent = `Approved limit ${cmState.limitKm.toFixed(2)} km · Recorded ${cmState.recordedTime}`;
+                document.getElementById("acc-y-title").textContent = `${cmState.travelY.toFixed(2)} m`;
+                document.getElementById("acc-y-sub").textContent = `Approved limit ${cmState.limitKm.toFixed(2)} km · Recorded ${cmState.recordedTime}`;
+                document.getElementById("acc-z-title").textContent = `${cmState.travelZ.toFixed(2)} m`;
+                document.getElementById("acc-z-sub").textContent = `Approved limit ${cmState.limitKm.toFixed(2)} km · Recorded ${cmState.recordedTime}`;
+            }
+
+            if (cmState.samples.length > 1) {
+                const firstTs = cmState.samples[0].timestamp;
+                const lastTs = cmState.samples[cmState.samples.length - 1].timestamp;
+                document.getElementById("meta-current-trend").innerHTML =
+                    `${cmState.samples.length} of 11025 records · newest records only; incomplete range<br>Loaded evidence · ${firstTs} – ${lastTs}`;
+                document.getElementById("meta-peak-current").innerHTML =
+                    `${cmState.samples.length} of 43392 records · newest records only; incomplete range<br>Loaded evidence · ${firstTs} – ${lastTs}`;
+            }
+
+            drawAllConditionCharts();
+        }
+
+        // =====================================================
+        // INTERACTIVE CANVAS CHARTS WITH HOVER TOOLTIPS
+        // =====================================================
+        function setupCanvasDPIScale(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext("2d");
+            ctx.scale(dpr, dpr);
+            return { ctx, w: rect.width, h: rect.height };
+        }
+
+        // 1. Robot Axis Current Trends & Peak Current History
+        function drawMultiLineChart(canvasId, tooltipId, yLabel, yMin, yMax, seriesExtractor, tooltipFormatter) {
+            const canvas = document.getElementById(canvasId);
+            const tooltip = document.getElementById(tooltipId);
+            if (!canvas) return;
+
+            const { ctx, w, h } = setupCanvasDPIScale(canvas);
+            ctx.clearRect(0, 0, w, h);
+
+            const samples = cmState.samples;
+            if (!samples || samples.length === 0) return;
+
+            // Auto-adjust yMax if live current peaks exceed 0.6A
+            let actualMax = yMax;
+            samples.forEach(s => {
+                const vals = seriesExtractor(s);
+                vals.forEach(v => { if (v > actualMax) actualMax = Math.ceil(v * 5) / 5; });
+            });
+
+            const padL = 46, padR = 16, padT = 12, padB = 34;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+
+            // Grid lines & Y labels
+            const steps = 6;
+            ctx.strokeStyle = "#ebf3f0";
+            ctx.fillStyle = "#69847e";
+            ctx.font = "10px Arial";
+            ctx.textAlign = "right";
+
+            for (let i = 0; i <= steps; i++) {
+                const ratio = i / steps;
+                const y = padT + plotH - ratio * plotH;
+                const val = yMin + ratio * (actualMax - yMin);
+
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(w - padR, y);
+                ctx.stroke();
+
+                ctx.fillText(val.toFixed(1), padL - 6, y + 3);
+            }
+
+            // Y Axis vertical label
+            ctx.save();
+            ctx.translate(12, padT + plotH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = "center";
+            ctx.fillText(yLabel, 0, 0);
+            ctx.restore();
+
+            // X labels
+            ctx.textAlign = "center";
+            const labelCount = Math.min(6, samples.length);
+            for (let i = 0; i < labelCount; i++) {
+                const idx = Math.floor((i / Math.max(1, labelCount - 1)) * (samples.length - 1));
+                const x = padL + (idx / Math.max(1, samples.length - 1)) * plotW;
+                const lbl = samples[idx].timestamp;
+                ctx.fillText(lbl, x, h - 8);
+            }
+
+            const colors = ["#059669", "#2563eb", "#7c3aed"];
+
+            // Draw 3 lines (X, Y, Z)
+            for (let sIdx = 0; sIdx < 3; sIdx++) {
+                ctx.strokeStyle = colors[sIdx];
+                ctx.lineWidth = 2.2;
+                ctx.beginPath();
+                samples.forEach((pt, i) => {
+                    const vals = seriesExtractor(pt);
+                    const v = vals[sIdx];
+                    const x = padL + (i / Math.max(1, samples.length - 1)) * plotW;
+                    const y = padT + plotH - ((v - yMin) / (actualMax - yMin)) * plotH;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            }
+
+            // Hover handler
+            canvas.onmousemove = (ev) => {
+                const rect = canvas.getBoundingClientRect();
+                const mx = ev.clientX - rect.left;
+                if (mx < padL || mx > w - padR) {
+                    tooltip.style.display = "none";
+                    return;
+                }
+                const ratio = (mx - padL) / plotW;
+                const idx = Math.min(samples.length - 1, Math.max(0, Math.round(ratio * (samples.length - 1))));
+                const pt = samples[idx];
+                const px = padL + (idx / Math.max(1, samples.length - 1)) * plotW;
+
+                tooltip.innerHTML = tooltipFormatter(pt);
+                tooltip.style.display = "block";
+                const tipLeft = Math.min(w - 170, Math.max(padL, px - 60));
+                tooltip.style.left = tipLeft + "px";
+                tooltip.style.top = "14px";
+            };
+
+            canvas.onmouseleave = () => {
+                tooltip.style.display = "none";
+            };
+        }
+
+        // 2. Cycle Time Trend Chart
+        function drawCycleTimeChart() {
+            const canvas = document.getElementById("canvas-cycle-trend");
+            const tooltip = document.getElementById("tooltip-cycle-trend");
+            if (!canvas) return;
+
+            const { ctx, w, h } = setupCanvasDPIScale(canvas);
+            ctx.clearRect(0, 0, w, h);
+
+            const pts = cmState.cycleSamples;
+            const padL = 44, padR = 16, padT = 12, padB = 34;
+            const plotW = w - padL - padR;
+            const plotH = h - padT - padB;
+            const yMin = 0, yMax = 600;
+
+            ctx.strokeStyle = "#ebf3f0";
+            ctx.fillStyle = "#69847e";
+            ctx.font = "10px Arial";
+            ctx.textAlign = "right";
+
+            for (let i = 0; i <= 6; i++) {
+                const val = i * 100;
+                const y = padT + plotH - (val / yMax) * plotH;
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(w - padR, y);
+                ctx.stroke();
+                ctx.fillText(String(val), padL - 6, y + 3);
+            }
+
+            // Baseline line
+            ctx.strokeStyle = "#059669";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(padL, padT + plotH - (6 / yMax) * plotH);
+            ctx.lineTo(w - padR - 14, padT + plotH - (6 / yMax) * plotH);
+            ctx.stroke();
+
+            // Scatter points at right side
+            pts.forEach((p, idx) => {
+                const x = p.scatter
+                    ? (w - padR - 12 + (idx - 7) * 2)
+                    : (padL + (idx / 6) * (plotW - 20));
+                const y = padT + plotH - (p.v / yMax) * plotH;
+                ctx.fillStyle = "#059669";
+                ctx.beginPath();
+                ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // X labels
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#69847e";
+            const xLabels = ["09/11/2026, 15:22:51", "09/11/2026, 17:38:06", "09/11/2026, 22:09:14"];
+            xLabels.forEach((lbl, i) => {
+                const x = padL + (i / 2) * plotW;
+                ctx.fillText(lbl, x, h - 8);
+            });
+        }
+
+        function drawAllConditionCharts() {
+            // 1. Robot Axis Current Trends
+            drawMultiLineChart(
+                "canvas-current-trend",
+                "tooltip-current-trend",
+                "Current (A)",
+                0.0,
+                0.6,
+                (s) => [s.x, s.y, s.z],
+                (s) => `
+                    <div style="font-weight:bold;margin-bottom:3px;">${s.timestamp}</div>
+                    <div><span style="color:#10b981;">■</span> X Axis (A): ${s.x.toFixed(3)}</div>
+                    <div><span style="color:#3b82f6;">■</span> Y Axis (A): ${s.y.toFixed(3)}</div>
+                    <div><span style="color:#a78bfa;">■</span> Z Axis (A): ${s.z.toFixed(3)}</div>
+                `
+            );
+
+            // 2. Peak Current History
+            drawMultiLineChart(
+                "canvas-peak-current",
+                "tooltip-peak-current",
+                "Peak current (A)",
+                0.0,
+                0.6,
+                (s) => [s.x, s.y, s.z],
+                (s) => `
+                    <div style="font-weight:bold;margin-bottom:3px;">${s.timestamp}</div>
+                    <div><span style="color:#10b981;">■</span> X Peak: ${s.x.toFixed(3)} A</div>
+                    <div><span style="color:#3b82f6;">■</span> Y Peak: ${s.y.toFixed(3)} A</div>
+                    <div><span style="color:#a78bfa;">■</span> Z Peak: ${s.z.toFixed(3)} A</div>
+                `
+            );
+
+            // 3. Cycle Time Trend
+            drawCycleTimeChart();
+
+            // 4. Recorded XYZ Position (0 - 300 mm)
+            drawMultiLineChart(
+                "canvas-xyz-pos",
+                "tooltip-xyz-pos",
+                "mm",
+                0.0,
+                300.0,
+                (s) => [s.posX, s.posY, s.posZ],
+                (s) => `
+                    <div style="font-weight:bold;margin-bottom:3px;">${s.timestamp}</div>
+                    <div><span style="color:#10b981;">■</span> X: ${s.posX.toFixed(2)} mm · GOOD</div>
+                    <div><span style="color:#3b82f6;">■</span> Y: ${s.posY.toFixed(2)} mm · GOOD</div>
+                    <div><span style="color:#a78bfa;">■</span> Z: ${s.posZ.toFixed(2)} mm · GOOD</div>
+                `
+            );
+
+            // 5. Recorded XYZ Command Speed (-1.0 to 1.0 mm/s)
+            drawMultiLineChart(
+                "canvas-xyz-speed",
+                "tooltip-xyz-speed",
+                "mm/s",
+                -1.0,
+                1.0,
+                (s) => [s.spdX, s.spdY, s.spdZ],
+                (s) => `
+                    <div style="font-weight:bold;margin-bottom:3px;">${s.timestamp} · 2026-11-09T15:12:31.484862Z</div>
+                    <div><span style="color:#10b981;">■</span> X: ${s.spdX} mm/s · GOOD</div>
+                    <div><span style="color:#3b82f6;">■</span> Y: ${s.spdY} mm/s · GOOD</div>
+                    <div><span style="color:#a78bfa;">■</span> Z: ${s.spdZ} mm/s · GOOD</div>
+                `
+            );
+        }
+
+        // =====================================================
+        // SUBSYSTEM TABS & SIDEBAR CONTROLS
+        // =====================================================
+        function switchSubsystemTab(tabKey, btnEl) {
+            document.querySelectorAll(".cm-tab").forEach(b => b.classList.remove("active"));
+            if (btnEl) btnEl.classList.add("active");
+            triggerAjaxRefresh();
+        }
+
+        function switchSubsystemByName(tabKey) {
+            const buttons = document.querySelectorAll(".cm-tab");
+            buttons.forEach(b => {
+                if (b.textContent.toLowerCase().includes(tabKey)) {
+                    switchSubsystemTab(tabKey, b);
+                }
+            });
+        }
+
+        function triggerAjaxRefresh() {
+            fetchConditionMonitoringAjax();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector(".sidebar");
+            const main = document.querySelector(".main");
+            const collapsed = sidebar.style.width === "65px";
+
+            sidebar.style.width = collapsed ? "218px" : "65px";
+            main.style.marginLeft = collapsed ? "218px" : "65px";
+
+            document.querySelectorAll(".brand > div:last-child, .nav-text, .collapse span").forEach(el => {
+                el.style.display = collapsed ? "" : "none";
+            });
+            setTimeout(drawAllConditionCharts, 260);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const d = now.toLocaleDateString("en-GB");
+            const t = now.toLocaleTimeString("th-TH");
+            document.getElementById("current-clock").textContent = `${d}, ${t}`;
+        }
+
+        window.addEventListener("resize", drawAllConditionCharts);
+
+        initDefaultSeries();
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Initial AJAX load + auto-sync every 2 seconds
+        fetchConditionMonitoringAjax();
+        setInterval(fetchConditionMonitoringAjax, 2000);
+    </script>
+
+</body>
+
+</html>
+
