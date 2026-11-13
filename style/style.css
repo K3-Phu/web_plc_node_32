@@ -1,0 +1,855 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+:root {
+    --green: #008b60;
+    --dark-green: #075943;
+    --sidebar: #075943;
+    --text: #123e36;
+    --muted: #69847e;
+    --border: #d8eae3;
+    --bg: #eff8f4;
+    --white: #fff;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 218px;
+    background: linear-gradient(160deg, #087052, #034d3d);
+    color: white;
+    padding: 18px 10px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    transition: width .25s;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px 18px;
+    border-bottom: 1px solid #ffffff25;
+}
+
+.brand-logo {
+    width: 39px;
+    height: 39px;
+    border: 1px solid #ffffff40;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: #ffffff20;
+    font-weight: bold;
+}
+
+.brand h3 {
+    font-size: 14px;
+}
+
+.brand p {
+    font-size: 11px;
+    color: #b9ddd0;
+    margin-top: 5px;
+}
+
+.nav {
+    margin-top: 18px;
+    display: grid;
+    gap: 7px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 10px;
+    color: #d8eee5;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: #079568;
+    color: white;
+    outline: 1px solid #36d99c;
+}
+
+.nav-icon {
+    font-size: 19px;
+    width: 23px;
+    text-align: center;
+}
+
+.collapse {
+    margin-top: auto;
+    padding: 13px;
+    border: 0;
+    border-radius: 9px;
+    color: white;
+    background: #ffffff20;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* MAIN */
+
+.main {
+    margin-left: 218px;
+    min-height: 100vh;
+    transition: margin .25s;
+}
+
+/* TOPBAR */
+
+.topbar {
+    min-height: 60px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 10px 22px;
+}
+
+.topbar-title h3 {
+    font-size: 14px;
+}
+
+.topbar-title p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 9px;
+    font-size: 10px;
+}
+
+.status-pill {
+    padding: 7px 11px;
+    border: 1px solid #a8e2c8;
+    border-radius: 20px;
+    background: #effcf5;
+    color: #008452;
+    font-weight: bold;
+}
+
+.status-pill::before {
+    content: "●";
+    margin-right: 6px;
+}
+
+.status-pill.offline {
+    background: #fff1f1;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.topbar-info {
+    color: var(--muted);
+}
+
+/* CONTENT */
+
+.content {
+    padding: 28px 30px;
+    background:
+        radial-gradient(ellipse at 85% 0%, #d8f5e8 0%, transparent 40%),
+        linear-gradient(120deg, #f3faf6, #eaf6f0);
+    min-height: calc(100vh - 60px);
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 15px;
+    margin-bottom: 22px;
+    padding-bottom: 17px;
+    border-bottom: 1px solid var(--border);
+}
+
+.breadcrumb {
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.page-heading h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.page-heading p {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.mode-badge {
+    border: 1px solid #a6dec5;
+    border-radius: 25px;
+    padding: 9px 14px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #00865b;
+    white-space: nowrap;
+}
+
+/* SUMMARY */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 11px;
+    margin-bottom: 22px;
+}
+
+.summary-card {
+    background: #ffffffed;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px;
+    min-height: 75px;
+}
+
+.summary-card h4 {
+    color: #54746a;
+    font-size: 11px;
+    margin-bottom: 9px;
+}
+
+.summary-card .number {
+    font-size: 23px;
+    font-weight: bold;
+}
+
+/* MACHINE PANEL */
+
+.machine-panel {
+    background: #ffffffed;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 23px;
+    box-shadow: 0 8px 25px #164b3210;
+}
+
+.machine-header {
+    display: grid;
+    grid-template-columns: 202px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.machine-image {
+    height: 155px;
+    border: 1px solid #dce9e3;
+    border-radius: 13px;
+    background: linear-gradient(145deg, #fff, #f0f7f3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6b9585;
+    gap: 8px;
+}
+
+.machine-image .machine-icon {
+    font-size: 55px;
+}
+
+.machine-image small {
+    font-size: 10px;
+}
+
+.machine-info .category {
+    color: #00a16c;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 13px;
+}
+
+.machine-info h2 {
+    font-size: clamp(19px, 2vw, 30px);
+    margin-bottom: 9px;
+}
+
+.machine-info p {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.machine-state {
+    text-align: right;
+}
+
+.machine-state .mode {
+    display: inline-block;
+    padding: 7px 13px;
+    border-radius: 20px;
+    background: #effaf4;
+    border: 1px solid #a5dec4;
+    color: #008c60;
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.machine-state p {
+    font-size: 11px;
+    margin-bottom: 7px;
+}
+
+.machine-state small {
+    font-size: 10px;
+    color: var(--muted);
+}
+
+/* TELEMETRY */
+
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    padding-top: 15px;
+}
+
+.telemetry-card {
+    position: relative;
+    overflow: hidden;
+    background: white;
+    border: 1px solid #c7e5d8;
+    border-radius: 12px;
+    padding: 15px;
+    min-height: 105px;
+}
+
+.telemetry-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    background: #3195f5;
+}
+
+.telemetry-card.ok::before {
+    background: #00aa70;
+}
+
+.telemetry-card.ng::before {
+    background: #d75b5b;
+}
+
+.telemetry-card.yield::before {
+    background: #9264ec;
+}
+
+.telemetry-card h4 {
+    font-size: 11px;
+    color: #58766d;
+    margin-bottom: 9px;
+}
+
+.telemetry-card .number {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.telemetry-card p {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 7px;
+}
+
+.telemetry-note {
+    text-align: right;
+    color: var(--muted);
+    font-size: 10px;
+    padding: 12px 0;
+}
+
+/* CHARTS GRID (Robot Current Trend + Machine Health) */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2.15fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.chart-card {
+    background: white;
+    border: 1px solid #c7e5d8;
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.chart-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.chart-title-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.chart-icon {
+    color: #059669;
+    font-size: 17px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+}
+
+.chart-title-row h3 {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: bold;
+}
+
+.chart-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+    margin-left: 26px;
+}
+
+.chart-range {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+}
+
+.chart-range strong {
+    color: var(--text);
+}
+
+.chart-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 11px;
+    color: #4b675e;
+    margin-left: auto;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-circle {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid currentColor;
+}
+
+.legend-circle.x-axis {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.18);
+}
+
+.legend-circle.y-axis {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.18);
+}
+
+.legend-circle.z-axis {
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.18);
+}
+
+.trend-canvas-wrap {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    margin-top: 6px;
+}
+
+.trend-canvas-wrap canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* MACHINE HEALTH DONUT */
+
+.health-donut-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0 16px;
+}
+
+.donut-svg-wrap {
+    position: relative;
+    width: 164px;
+    height: 164px;
+    display: grid;
+    place-items: center;
+}
+
+.donut-svg-wrap svg {
+    width: 164px;
+    height: 164px;
+    transform: rotate(-90deg);
+}
+
+.donut-center-text {
+    position: absolute;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.donut-percent {
+    font-size: 27px;
+    font-weight: 800;
+    color: #0e3a2f;
+    line-height: 1.1;
+}
+
+.donut-status {
+    font-size: 9.5px;
+    font-weight: bold;
+    color: #059669;
+    letter-spacing: 0.4px;
+    margin-top: 3px;
+    text-transform: uppercase;
+}
+
+.health-assessment {
+    border-top: 1px solid #e3f0ea;
+    padding-top: 12px;
+    margin-top: 4px;
+}
+
+.health-assessment h4 {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 5px;
+}
+
+.health-assessment p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+/* ROBOT CONDITION SECTION */
+
+.robot-condition-section {
+    margin-bottom: 18px;
+}
+
+.robot-condition-header {
+    margin-bottom: 11px;
+}
+
+.robot-condition-header .rc-tag {
+    color: #008b60;
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.robot-condition-header h3 {
+    font-size: 16px;
+    color: var(--text);
+    font-weight: bold;
+}
+
+.robot-axis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.axis-card {
+    background: white;
+    border: 1px solid #c7e5d8;
+    border-radius: 12px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+}
+
+.axis-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3.5px;
+    background: #059669;
+}
+
+.axis-card.axis-x::before {
+    background: #059669;
+}
+
+.axis-card.axis-y::before {
+    background: #2563eb;
+}
+
+.axis-card.axis-z::before {
+    background: #7c3aed;
+}
+
+.axis-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.axis-card-head h4 {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text);
+}
+
+.axis-card-head span {
+    font-size: 10.5px;
+    color: var(--muted);
+}
+
+.axis-metric {
+    padding-bottom: 11px;
+    margin-bottom: 11px;
+    border-bottom: 1px solid #edf5f1;
+}
+
+.axis-metric:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.axis-metric label {
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+    color: #35584e;
+    margin-bottom: 4px;
+}
+
+.axis-metric .axis-val {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+    margin-bottom: 3px;
+}
+
+.axis-metric small {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+/* LOWER PANELS */
+
+.lower-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 13px;
+    margin-top: 5px;
+}
+
+.lower-panel {
+    background: white;
+    border: 1px solid #c7e5d8;
+    border-radius: 13px;
+    padding: 18px;
+    min-height: 180px;
+}
+
+.lower-panel h3 {
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.io-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.io-item {
+    background: #f4faf7;
+    border: 1px solid #e0eee7;
+    border-radius: 9px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.io-value {
+    font-weight: bold;
+    color: #008d60;
+}
+
+.footer {
+    text-align: right;
+    font-size: 10px;
+    color: var(--muted);
+    padding: 18px 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+
+    .summary-grid,
+    .telemetry-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .robot-axis-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .machine-header {
+        grid-template-columns: 150px 1fr;
+    }
+
+    .machine-image {
+        height: 130px;
+    }
+
+    .machine-state {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        width: 65px;
+        padding: 12px 7px;
+    }
+
+    .brand {
+        justify-content: center;
+        padding: 0 0 15px;
+    }
+
+    .brand>div:last-child,
+    .nav-text,
+    .collapse span {
+        display: none;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 13px 5px;
+    }
+
+    .main {
+        margin-left: 65px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+    }
+
+    .topbar-info {
+        display: none;
+    }
+
+    .content {
+        padding: 20px 13px;
+    }
+
+    .page-heading h1 {
+        font-size: 23px;
+    }
+
+    .machine-header {
+        grid-template-columns: 1fr;
+    }
+
+    .machine-image {
+        height: 130px;
+    }
+
+    .lower-grid,
+    .robot-axis-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .io-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .summary-grid,
+    .telemetry-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+    }
+
+    .summary-card,
+    .telemetry-card {
+        padding: 11px;
+    }
+
+    .machine-panel {
+        padding: 13px;
+    }
+
+    .topbar-title p {
+        display: none;
+    }
+}
+
