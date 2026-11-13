@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLC Monitoring Dashboard</title>
+    <title>Predictive Maintenance | Operations Console</title>
     <link rel="icon" href="data:,">
 
     <style>
@@ -15,106 +15,547 @@
             font-family: Arial, sans-serif;
         }
 
+        :root {
+            --green: #008b60;
+            --dark-green: #075943;
+            --sidebar: #075943;
+            --text: #123e36;
+            --muted: #69847e;
+            --border: #d8eae3;
+            --bg: #eff8f4;
+            --white: #fff;
+        }
+
         body {
-            background: #f4f6f9;
-            color: #263445;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
         }
 
-        header {
-            background: #172337;
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 218px;
+            background: linear-gradient(160deg, #087052, #034d3d);
             color: white;
-            padding: 22px 30px;
+            padding: 18px 10px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            transition: width .25s;
         }
 
-        header h2 {
-            font-size: 22px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 18px;
+            border-bottom: 1px solid #ffffff25;
         }
 
-        header p {
-            color: #aab8cc;
+        .brand-logo {
+            width: 39px;
+            height: 39px;
+            border: 1px solid #ffffff40;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: #ffffff20;
+            font-weight: bold;
+        }
+
+        .brand h3 {
+            font-size: 14px;
+        }
+
+        .brand p {
+            font-size: 11px;
+            color: #b9ddd0;
+            margin-top: 5px;
+        }
+
+        .nav {
+            margin-top: 18px;
+            display: grid;
+            gap: 7px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            color: #d8eee5;
             font-size: 13px;
-            margin-top: 6px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
-        .container {
-            padding: 30px;
+        .nav-item:hover,
+        .nav-item.active {
+            background: #079568;
+            color: white;
+            outline: 1px solid #36d99c;
         }
 
-        .top-bar {
+        .nav-icon {
+            font-size: 19px;
+            width: 23px;
+            text-align: center;
+        }
+
+        .collapse {
+            margin-top: auto;
+            padding: 13px;
+            border: 0;
+            border-radius: 9px;
+            color: white;
+            background: #ffffff20;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 218px;
+            min-height: 100vh;
+            transition: margin .25s;
+        }
+
+        /* TOPBAR */
+
+        .topbar {
+            min-height: 60px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 22px;
+        }
+
+        .topbar-title h3 {
+            font-size: 14px;
+        }
+
+        .topbar-title p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 9px;
+            font-size: 10px;
+        }
+
+        .status-pill {
+            padding: 7px 11px;
+            border: 1px solid #a8e2c8;
+            border-radius: 20px;
+            background: #effcf5;
+            color: #008452;
+            font-weight: bold;
+        }
+
+        .status-pill::before {
+            content: "●";
+            margin-right: 6px;
+        }
+
+        .status-pill.offline {
+            background: #fff1f1;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .topbar-info {
+            color: var(--muted);
+        }
+
+        /* CONTENT */
+
+        .content {
+            padding: 28px 30px;
+            background:
+                radial-gradient(ellipse at 85% 0%, #d8f5e8 0%, transparent 40%),
+                linear-gradient(120deg, #f3faf6, #eaf6f0);
+            min-height: calc(100vh - 60px);
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 15px;
+            margin-bottom: 22px;
+            padding-bottom: 17px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .breadcrumb {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .page-heading h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .mode-badge {
+            border: 1px solid #a6dec5;
+            border-radius: 25px;
+            padding: 9px 14px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #00865b;
+            white-space: nowrap;
+        }
+
+        /* SUMMARY */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 11px;
+            margin-bottom: 22px;
+        }
+
+        .summary-card {
+            background: #ffffffed;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 75px;
+        }
+
+        .summary-card h4 {
+            color: #54746a;
+            font-size: 11px;
+            margin-bottom: 9px;
+        }
+
+        .summary-card .number {
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        /* MACHINE PANEL */
+
+        .machine-panel {
+            background: #ffffffed;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            padding: 23px;
+            box-shadow: 0 8px 25px #164b3210;
+        }
+
+        .machine-header {
+            display: grid;
+            grid-template-columns: 202px 1fr auto;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .machine-image {
+            height: 155px;
+            border: 1px solid #dce9e3;
+            border-radius: 13px;
+            background: linear-gradient(145deg, #fff, #f0f7f3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6b9585;
+            gap: 8px;
+        }
+
+        .machine-image .machine-icon {
+            font-size: 55px;
+        }
+
+        .machine-image small {
+            font-size: 10px;
+        }
+
+        .machine-info .category {
+            color: #00a16c;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 13px;
+        }
+
+        .machine-info h2 {
+            font-size: clamp(19px, 2vw, 30px);
+            margin-bottom: 9px;
+        }
+
+        .machine-info p {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .machine-state {
+            text-align: right;
+        }
+
+        .machine-state .mode {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            background: #effaf4;
+            border: 1px solid #a5dec4;
+            color: #008c60;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .machine-state p {
+            font-size: 11px;
+            margin-bottom: 7px;
+        }
+
+        .machine-state small {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        /* TELEMETRY */
+
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            padding-top: 15px;
+        }
+
+        .telemetry-card {
+            position: relative;
+            overflow: hidden;
+            background: white;
+            border: 1px solid #c7e5d8;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 105px;
+        }
+
+        .telemetry-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 3px;
+            background: #3195f5;
+        }
+
+        .telemetry-card.ok::before {
+            background: #00aa70;
+        }
+
+        .telemetry-card.ng::before {
+            background: #d75b5b;
+        }
+
+        .telemetry-card.yield::before {
+            background: #9264ec;
+        }
+
+        .telemetry-card h4 {
+            font-size: 11px;
+            color: #58766d;
+            margin-bottom: 9px;
+        }
+
+        .telemetry-card .number {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .telemetry-card p {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 7px;
+        }
+
+        .telemetry-note {
+            text-align: right;
+            color: var(--muted);
+            font-size: 10px;
+            padding: 12px 0;
+        }
+
+        /* LOWER PANELS */
+
+        .lower-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 13px;
+            margin-top: 5px;
+        }
+
+        .lower-panel {
+            background: white;
+            border: 1px solid #c7e5d8;
+            border-radius: 13px;
+            padding: 18px;
+            min-height: 180px;
+        }
+
+        .lower-panel h3 {
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .io-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .io-item {
+            background: #f4faf7;
+            border: 1px solid #e0eee7;
+            border-radius: 9px;
+            padding: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .connection {
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            background: #eee;
-        }
-
-        .connected {
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-        .disconnected {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 18px;
-        }
-
-        .card {
-            background: white;
-            padding: 22px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, .03);
-        }
-
-        .card h3 {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 18px;
-            font-weight: 500;
-            overflow-wrap: anywhere;
-        }
-
-        .value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #172337;
-            overflow-wrap: anywhere;
-        }
-
-        .footer {
-            margin-top: 25px;
-            color: #94a3b8;
             font-size: 12px;
         }
 
-        .empty {
-            grid-column: 1 / -1;
-            color: #64748b;
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
+        .io-value {
+            font-weight: bold;
+            color: #008d60;
         }
 
-        @media (max-width: 600px) {
-            .container {
-                padding: 18px;
+        .footer {
+            text-align: right;
+            font-size: 10px;
+            color: var(--muted);
+            padding: 18px 0;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1100px) {
+
+            .summary-grid,
+            .telemetry-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            header {
-                padding: 20px;
+            .machine-header {
+                grid-template-columns: 150px 1fr;
+            }
+
+            .machine-image {
+                height: 130px;
+            }
+
+            .machine-state {
+                grid-column: 1 / -1;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                width: 65px;
+                padding: 12px 7px;
+            }
+
+            .brand {
+                justify-content: center;
+                padding: 0 0 15px;
+            }
+
+            .brand>div:last-child,
+            .nav-text,
+            .collapse span {
+                display: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 13px 5px;
+            }
+
+            .main {
+                margin-left: 65px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .topbar-info {
+                display: none;
+            }
+
+            .content {
+                padding: 20px 13px;
+            }
+
+            .page-heading h1 {
+                font-size: 23px;
+            }
+
+            .machine-header {
+                grid-template-columns: 1fr;
+            }
+
+            .machine-image {
+                height: 130px;
+            }
+
+            .lower-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .io-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 420px) {
+
+            .summary-grid,
+            .telemetry-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 7px;
+            }
+
+            .summary-card,
+            .telemetry-card {
+                padding: 11px;
+            }
+
+            .machine-panel {
+                padding: 13px;
+            }
+
+            .topbar-title p {
+                display: none;
             }
         }
     </style>
@@ -122,30 +563,299 @@
 
 <body>
 
-    <header>
-        <h2>PLC Monitoring Dashboard</h2>
-        <p>Real-time PLC I/O Monitoring System</p>
-    </header>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-    <main class="container">
-
-        <div class="top-bar">
-            <h3>PLC-IO Monitoring</h3>
-            <div id="connection" class="connection disconnected">
-                Connecting...
+        <div class="brand">
+            <div class="brand-logo">EE</div>
+            <div>
+                <h3>Predictive Maintenance</h3>
+                <p>Fault Alert System</p>
             </div>
         </div>
 
-        <section id="dashboard" class="grid">
-            <div class="empty">กำลังโหลดข้อมูล...</div>
-        </section>
+        <nav class="nav">
+            <div class="nav-item active">
+                <span class="nav-icon">⌂</span>
+                <span class="nav-text">Machine Overview</span>
+            </div>
 
-        <div class="footer">
-            Last Update: <span id="last-update">--</span>
-        </div>
+            <div class="nav-item">
+                <span class="nav-icon">⌁</span>
+                <span class="nav-text">Condition Monitoring</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">♧</span>
+                <span class="nav-text">Alarm History</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">⚒</span>
+                <span class="nav-text">Maintenance</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">♧</span>
+                <span class="nav-text">Experiment / Demo</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span class="nav-text">Settings</span>
+            </div>
+        </nav>
+
+        <button class="collapse" onclick="toggleSidebar()">
+            <span>‹ &nbsp; Collapse</span>
+            ‹
+        </button>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-title">
+                <h3>Operations Console</h3>
+                <p>Predictive maintenance and fault monitoring</p>
+            </div>
+
+            <div class="topbar-right">
+
+                <span id="server-status" class="status-pill offline">
+                    Server Connecting
+                </span>
+
+                <span id="telemetry-status" class="status-pill">
+                    Telemetry: Mock Data
+                </span>
+
+                <span class="topbar-info" id="current-time">--</span>
+                <span class="topbar-info">UI build predictive-maintenance</span>
+                <span class="topbar-info">Recording viewer</span>
+                <span class="topbar-info">Password</span>
+                <span class="topbar-info">Logout</span>
+
+            </div>
+        </header>
+
+
+        <!-- CONTENT -->
+        <section class="content">
+
+            <div class="page-heading">
+
+                <div>
+                    <div class="breadcrumb">
+                        Operations overview / ภาพรวมเครื่องจักร
+                    </div>
+
+                    <h1>Machine Overview</h1>
+
+                    <p>
+                        Machine condition, production, alerts and maintenance at a glance.
+                    </p>
+                </div>
+
+                <span class="mode-badge">MONITORING ONLY</span>
+
+            </div>
+
+
+            <!-- SUMMARY -->
+            <section class="summary-grid">
+
+                <article class="summary-card">
+                    <h4>Production machines</h4>
+                    <div class="number" id="production-machines">1</div>
+                </article>
+
+                <article class="summary-card">
+                    <h4>Running</h4>
+                    <div class="number" id="running">0</div>
+                </article>
+
+                <article class="summary-card">
+                    <h4>Alarm</h4>
+                    <div class="number" id="alarm">0</div>
+                </article>
+
+                <article class="summary-card">
+                    <h4>Offline</h4>
+                    <div class="number" id="offline">0</div>
+                </article>
+
+                <article class="summary-card">
+                    <h4>Stale / unavailable</h4>
+                    <div class="number" id="stale">0</div>
+                </article>
+
+                <article class="summary-card">
+                    <h4>Demo machines</h4>
+                    <div class="number" id="demo-machines">0</div>
+                </article>
+
+            </section>
+
+
+            <!-- MACHINE -->
+            <section class="machine-panel">
+
+                <div class="machine-header">
+
+                    <div class="machine-image">
+                        <div class="machine-icon">🏭</div>
+                        <small>Machine Preview / 3D Model</small>
+                    </div>
+
+                    <div class="machine-info">
+
+                        <div class="category">Condition monitoring</div>
+
+                        <h2 id="machine-name">
+                            SCREW ROTARY BARREL MACHINE / KV-5500
+                        </h2>
+
+                        <p id="machine-model">KV-5500 · KV-5500</p>
+
+                    </div>
+
+                    <div class="machine-state">
+
+                        <span class="mode" id="machine-mode">MANUAL</span>
+
+                        <p>Current observed telemetry state</p>
+
+                        <small>
+                            Source timestamp ·
+                            <span id="source-time">--</span>
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TELEMETRY -->
+                <div class="telemetry-grid">
+
+                    <article class="telemetry-card">
+                        <h4>PLC timer (pause-inclusive)</h4>
+                        <div class="number">
+                            <span id="plc-timer">18.00</span> s
+                        </div>
+                        <p>May include Pause · not a validated per-piece production cycle</p>
+                        <p>Recorded · <span id="timer-time">--</span></p>
+                    </article>
+
+                    <article class="telemetry-card ok">
+                        <h4>OK · KV:DM12</h4>
+                        <div class="number" id="ok-count">6</div>
+                    </article>
+
+                    <article class="telemetry-card ng">
+                        <h4>NG · KV:DM14</h4>
+                        <div class="number" id="ng-count">3</div>
+                    </article>
+
+                    <article class="telemetry-card">
+                        <h4>Total · OK + NG</h4>
+                        <div class="number" id="total-count">9</div>
+                    </article>
+
+                    <article class="telemetry-card yield">
+                        <h4>Yield · OK / (OK + NG)</h4>
+                        <div class="number" id="yield">66.7%</div>
+                    </article>
+
+                </div>
+
+
+                <div class="telemetry-note">
+                    PLC counters recorded · owner-confirmed counters;
+                    tightening results have separate occurrence evidence
+                </div>
+
+
+                <!-- LOWER PANELS -->
+                <div class="lower-grid">
+
+                    <div class="lower-panel">
+                        <h3>PLC I/O Monitoring</h3>
+
+                        <div class="io-list" id="io-list">
+                            <div class="io-item">
+                                <span>PLC Connection</span>
+                                <span class="io-value">ON</span>
+                            </div>
+
+                            <div class="io-item">
+                                <span>Machine Running</span>
+                                <span class="io-value">OFF</span>
+                            </div>
+
+                            <div class="io-item">
+                                <span>Alarm Signal</span>
+                                <span class="io-value">OFF</span>
+                            </div>
+
+                            <div class="io-item">
+                                <span>Emergency Stop</span>
+                                <span class="io-value">OFF</span>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="lower-panel">
+                        <h3>System Information</h3>
+
+                        <div class="io-list" style="grid-template-columns:1fr">
+
+                            <div class="io-item">
+                                <span>Connection</span>
+                                <span class="io-value" id="system-connection">
+                                    Mock
+                                </span>
+                            </div>
+
+                            <div class="io-item">
+                                <span>Data Source</span>
+                                <span class="io-value" id="data-source">
+                                    Mock Data
+                                </span>
+                            </div>
+
+                            <div class="io-item">
+                                <span>Last Update</span>
+                                <span class="io-value" id="system-update">
+                                    --
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <footer class="footer">
+                Predictive Maintenance Dashboard · Realtime Monitoring System
+            </footer>
+
+        </section>
 
     </main>
 
+
+    <!-- FIREBASE -->
     <script type="module">
 
         import { initializeApp }
@@ -158,17 +868,15 @@
         } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
 
 
-        // ========================================
-        // FIREBASE CONFIGURATION
-        // ========================================
+        // =========================================
+        // FIREBASE CONFIG
+        // =========================================
 
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "plc-connectwith-esp32.firebaseapp.com",
-
-            // แก้ URL ให้ตรงกับ Realtime Database ของคุณ
-            databaseURL: "https://plc-connectwith-esp32-default-rtdb.asia-southeast1.firebasedatabase.app",
-
+            databaseURL:
+                "https://plc-connectwith-esp32-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "plc-connectwith-esp32",
             storageBucket: "plc-connectwith-esp32.firebasestorage.app",
             messagingSenderId: "1007351984981",
@@ -176,121 +884,289 @@
         };
 
 
-        // ========================================
-        // DOM ELEMENTS
-        // ========================================
+        // =========================================
+        // MOCK DATA
+        // =========================================
 
-        const dashboard = document.getElementById("dashboard");
-        const connection = document.getElementById("connection");
-        const lastUpdate = document.getElementById("last-update");
+        const mockData = {
 
+            overview: {
+                productionMachines: 1,
+                running: 0,
+                alarm: 0,
+                offline: 0,
+                stale: 0,
+                demoMachines: 0
+            },
 
-        // ========================================
-        // CONNECTION STATUS
-        // ========================================
+            machine: {
+                name: "SCREW ROTARY BARREL MACHINE / KV-5500",
+                model: "KV-5500",
+                mode: "MANUAL"
+            },
 
-        function setConnection(status, message) {
+            metrics: {
+                plcTimer: 18.00,
+                ok: 6,
+                ng: 3
+            },
 
-            connection.textContent = message;
+            io: {
+                "PLC Connection": true,
+                "Machine Running": false,
+                "Alarm Signal": false,
+                "Emergency Stop": false
+            },
 
-            connection.className = "connection " +
-                (status ? "connected" : "disconnected");
-
-        }
-
-
-        // ========================================
-        // EMPTY MESSAGE
-        // ========================================
-
-        function showMessage(message) {
-
-            dashboard.replaceChildren();
-
-            const element = document.createElement("div");
-
-            element.className = "empty";
-            element.textContent = message;
-
-            dashboard.appendChild(element);
-
-        }
+            sourceTimestamp: null
+        };
 
 
-        // ========================================
-        // RENDER DASHBOARD
-        // ========================================
+        // =========================================
+        // MERGE MOCK + REAL DATA
+        // =========================================
 
-        function renderDashboard(data) {
+        function mergeData(mock, real) {
 
-            dashboard.replaceChildren();
-
-            if (!data || typeof data !== "object") {
-
-                showMessage("ยังไม่มีข้อมูลใน PLC-IO");
-
-                return;
-
+            if (
+                real === null ||
+                typeof real !== "object" ||
+                Array.isArray(real)
+            ) {
+                return real !== null && real !== undefined
+                    ? real
+                    : mock;
             }
 
-            Object.entries(data).forEach(([key, value]) => {
+            const result = { ...mock };
 
-                const card = document.createElement("article");
-                card.className = "card";
+            Object.entries(real).forEach(([key, value]) => {
 
-                const title = document.createElement("h3");
-                title.textContent = key;
+                if (
+                    value !== null &&
+                    typeof value === "object" &&
+                    !Array.isArray(value)
+                ) {
 
-                const display = document.createElement("div");
-                display.className = "value";
+                    result[key] = mergeData(
+                        mock?.[key] ?? {},
+                        value
+                    );
 
-                if (typeof value === "boolean") {
+                } else if (value !== null && value !== undefined) {
 
-                    display.textContent = value ? "ON" : "OFF";
-
-                } else if (value === null || value === undefined) {
-
-                    display.textContent = "--";
-
-                } else if (typeof value === "object") {
-
-                    display.textContent = JSON.stringify(value);
-
-                } else {
-
-                    display.textContent = String(value);
+                    result[key] = value;
 
                 }
 
-                card.append(title, display);
+            });
 
-                dashboard.appendChild(card);
+            return result;
+        }
+
+
+        // =========================================
+        // FORMAT
+        // =========================================
+
+        function formatValue(value, suffix = "") {
+
+            if (value === null || value === undefined || value === "") {
+                return "--";
+            }
+
+            if (typeof value === "boolean") {
+                return value ? "ON" : "OFF";
+            }
+
+            return String(value) + suffix;
+        }
+
+
+        function formatTime(value) {
+
+            if (!value) {
+                return new Date().toLocaleString("th-TH");
+            }
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return String(value);
+            }
+
+            return date.toLocaleString("th-TH");
+        }
+
+
+        // =========================================
+        // UPDATE DASHBOARD
+        // =========================================
+
+        function updateDashboard(rawData, isConnected) {
+
+            const data = mergeData(mockData, rawData || {});
+
+            const overview = data.overview;
+            const machine = data.machine;
+            const metrics = data.metrics;
+            const io = data.io || {};
+
+            const ok = Number(metrics.ok) || 0;
+            const ng = Number(metrics.ng) || 0;
+            const total = ok + ng;
+
+            const yieldValue = total > 0
+                ? ((ok / total) * 100).toFixed(1)
+                : "0.0";
+
+
+            // OVERVIEW
+
+            document.getElementById("production-machines").textContent =
+                formatValue(overview.productionMachines);
+
+            document.getElementById("running").textContent =
+                formatValue(overview.running);
+
+            document.getElementById("alarm").textContent =
+                formatValue(overview.alarm);
+
+            document.getElementById("offline").textContent =
+                formatValue(overview.offline);
+
+            document.getElementById("stale").textContent =
+                formatValue(overview.stale);
+
+            document.getElementById("demo-machines").textContent =
+                formatValue(overview.demoMachines);
+
+
+            // MACHINE
+
+            document.getElementById("machine-name").textContent =
+                formatValue(machine.name);
+
+            document.getElementById("machine-model").textContent =
+                formatValue(machine.model);
+
+            document.getElementById("machine-mode").textContent =
+                formatValue(machine.mode);
+
+
+            // METRICS
+
+            document.getElementById("plc-timer").textContent =
+                formatValue(metrics.plcTimer);
+
+            document.getElementById("ok-count").textContent =
+                formatValue(metrics.ok);
+
+            document.getElementById("ng-count").textContent =
+                formatValue(metrics.ng);
+
+            document.getElementById("total-count").textContent = total;
+
+            document.getElementById("yield").textContent =
+                yieldValue + "%";
+
+
+            // I/O
+
+            const ioList = document.getElementById("io-list");
+
+            ioList.replaceChildren();
+
+            Object.entries(io).forEach(([key, value]) => {
+
+                const item = document.createElement("div");
+                item.className = "io-item";
+
+                const label = document.createElement("span");
+                label.textContent = key;
+
+                const display = document.createElement("span");
+                display.className = "io-value";
+
+                display.textContent = formatValue(value);
+
+                if (value === false) {
+                    display.style.color = "#d97706";
+                }
+
+                item.append(label, display);
+                ioList.appendChild(item);
 
             });
 
-            lastUpdate.textContent = new Date().toLocaleString();
+
+            // STATUS
+
+            const sourceTime = formatTime(data.sourceTimestamp);
+
+            document.getElementById("source-time").textContent =
+                sourceTime;
+
+            document.getElementById("timer-time").textContent =
+                sourceTime;
+
+            document.getElementById("system-connection").textContent =
+                isConnected ? "Connected" : "Disconnected";
+
+            document.getElementById("data-source").textContent =
+                rawData ? "Firebase + Mock" : "Mock Data";
+
+            document.getElementById("system-update").textContent =
+                new Date().toLocaleTimeString("th-TH");
+
+            document.getElementById("current-time").textContent =
+                new Date().toLocaleString("th-TH");
 
         }
 
 
-        // ========================================
-        // INITIALIZE FIREBASE
-        // ========================================
+        // =========================================
+        // CONNECTION STATUS
+        // =========================================
+
+        function setConnection(connected) {
+
+            const server = document.getElementById("server-status");
+            const telemetry = document.getElementById("telemetry-status");
+
+            server.textContent = connected
+                ? "Server Connected"
+                : "Server Disconnected";
+
+            server.classList.toggle("offline", !connected);
+
+            telemetry.textContent = connected
+                ? "Telemetry: Firebase + Mock"
+                : "Telemetry: Mock Data";
+
+        }
+
+
+        // =========================================
+        // INITIAL RENDER
+        // =========================================
+
+        let latestData = {};
+
+        updateDashboard(latestData, false);
+
+
+        // =========================================
+        // FIREBASE INITIALIZE
+        // =========================================
 
         try {
 
-            if (!firebaseConfig.databaseURL) {
-                throw new Error("กรุณากำหนด Firebase Database URL");
-            }
-
             const app = initializeApp(firebaseConfig);
-
             const database = getDatabase(app);
 
 
-            // ------------------------------------
-            // CHECK CONNECTION
-            // ------------------------------------
+            // CONNECTION
 
             const connectedRef = ref(database, ".info/connected");
 
@@ -298,62 +1174,85 @@
 
                 const connected = snapshot.val() === true;
 
-                if (connected) {
+                setConnection(connected);
 
-                    setConnection(true, "Connected");
-
-                } else {
-
-                    setConnection(false, "Disconnected");
-
-                }
+                updateDashboard(latestData, connected);
 
             });
 
 
-            // ------------------------------------
-            // READ PLC DATA
-            // ------------------------------------
+            // PLC DATA
 
             const plcRef = ref(database, "PLC-IO");
 
-            onValue(
+            onValue(plcRef, (snapshot) => {
 
-                plcRef,
+                latestData = snapshot.val() || {};
 
-                (snapshot) => {
+                updateDashboard(
+                    latestData,
+                    document.getElementById("server-status")
+                        .textContent === "Server Connected"
+                );
 
-                    const data = snapshot.val();
+            }, (error) => {
 
-                    renderDashboard(data);
+                console.error("Firebase Read Error:", error);
 
-                },
+                setConnection(false);
 
-                (error) => {
+                updateDashboard({}, false);
 
-                    console.error("Firebase Read Error:", error);
-
-                    setConnection(false, "Read Error");
-
-                    showMessage("ไม่สามารถอ่านข้อมูล PLC-IO ได้");
-
-                }
-
-            );
-
+            });
 
             console.log("Firebase Initialized Successfully");
-
 
         } catch (error) {
 
             console.error("Firebase Initialization Error:", error);
 
-            setConnection(false, "Setup Error");
+            setConnection(false);
 
-            showMessage(error.message);
+            updateDashboard({}, false);
 
         }
+
+
+        // =========================================
+        // CLOCK
+        // =========================================
+
+        setInterval(() => {
+
+            document.getElementById("current-time").textContent =
+                new Date().toLocaleString("th-TH");
+
+        }, 1000);
+
+
+        // =========================================
+        // SIDEBAR
+        // =========================================
+
+        window.toggleSidebar = function () {
+
+            const sidebar = document.querySelector(".sidebar");
+            const main = document.querySelector(".main");
+
+            const collapsed = sidebar.style.width === "65px";
+
+            sidebar.style.width = collapsed ? "218px" : "65px";
+            main.style.marginLeft = collapsed ? "218px" : "65px";
+
+            document.querySelectorAll(
+                ".brand > div:last-child, .nav-text"
+            ).forEach(element => {
+
+                element.style.display = collapsed ? "" : "none";
+
+            });
+
+        };
 
     </script>
 
