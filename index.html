@@ -6,559 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Predictive Maintenance | Operations Console</title>
     <link rel="icon" href="data:,">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        :root {
-            --green: #008b60;
-            --dark-green: #075943;
-            --sidebar: #075943;
-            --text: #123e36;
-            --muted: #69847e;
-            --border: #d8eae3;
-            --bg: #eff8f4;
-            --white: #fff;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
-
-        /* SIDEBAR */
-
-        .sidebar {
-            position: fixed;
-            inset: 0 auto 0 0;
-            width: 218px;
-            background: linear-gradient(160deg, #087052, #034d3d);
-            color: white;
-            padding: 18px 10px;
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
-            transition: width .25s;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 8px 18px;
-            border-bottom: 1px solid #ffffff25;
-        }
-
-        .brand-logo {
-            width: 39px;
-            height: 39px;
-            border: 1px solid #ffffff40;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            background: #ffffff20;
-            font-weight: bold;
-        }
-
-        .brand h3 {
-            font-size: 14px;
-        }
-
-        .brand p {
-            font-size: 11px;
-            color: #b9ddd0;
-            margin-top: 5px;
-        }
-
-        .nav {
-            margin-top: 18px;
-            display: grid;
-            gap: 7px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px;
-            border-radius: 10px;
-            color: #d8eee5;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: #079568;
-            color: white;
-            outline: 1px solid #36d99c;
-        }
-
-        .nav-icon {
-            font-size: 19px;
-            width: 23px;
-            text-align: center;
-        }
-
-        .collapse {
-            margin-top: auto;
-            padding: 13px;
-            border: 0;
-            border-radius: 9px;
-            color: white;
-            background: #ffffff20;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* MAIN */
-
-        .main {
-            margin-left: 218px;
-            min-height: 100vh;
-            transition: margin .25s;
-        }
-
-        /* TOPBAR */
-
-        .topbar {
-            min-height: 60px;
-            background: white;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 10px 22px;
-        }
-
-        .topbar-title h3 {
-            font-size: 14px;
-        }
-
-        .topbar-title p {
-            color: var(--muted);
-            font-size: 11px;
-            margin-top: 5px;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-            gap: 9px;
-            font-size: 10px;
-        }
-
-        .status-pill {
-            padding: 7px 11px;
-            border: 1px solid #a8e2c8;
-            border-radius: 20px;
-            background: #effcf5;
-            color: #008452;
-            font-weight: bold;
-        }
-
-        .status-pill::before {
-            content: "●";
-            margin-right: 6px;
-        }
-
-        .status-pill.offline {
-            background: #fff1f1;
-            color: #dc2626;
-            border-color: #fecaca;
-        }
-
-        .topbar-info {
-            color: var(--muted);
-        }
-
-        /* CONTENT */
-
-        .content {
-            padding: 28px 30px;
-            background:
-                radial-gradient(ellipse at 85% 0%, #d8f5e8 0%, transparent 40%),
-                linear-gradient(120deg, #f3faf6, #eaf6f0);
-            min-height: calc(100vh - 60px);
-        }
-
-        .page-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: end;
-            gap: 15px;
-            margin-bottom: 22px;
-            padding-bottom: 17px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .breadcrumb {
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .page-heading h1 {
-            font-size: 30px;
-            margin-bottom: 8px;
-        }
-
-        .page-heading p {
-            font-size: 14px;
-            color: var(--muted);
-        }
-
-        .mode-badge {
-            border: 1px solid #a6dec5;
-            border-radius: 25px;
-            padding: 9px 14px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #00865b;
-            white-space: nowrap;
-        }
-
-        /* SUMMARY */
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 11px;
-            margin-bottom: 22px;
-        }
-
-        .summary-card {
-            background: #ffffffed;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            min-height: 75px;
-        }
-
-        .summary-card h4 {
-            color: #54746a;
-            font-size: 11px;
-            margin-bottom: 9px;
-        }
-
-        .summary-card .number {
-            font-size: 23px;
-            font-weight: bold;
-        }
-
-        /* MACHINE PANEL */
-
-        .machine-panel {
-            background: #ffffffed;
-            border: 1px solid var(--border);
-            border-radius: 17px;
-            padding: 23px;
-            box-shadow: 0 8px 25px #164b3210;
-        }
-
-        .machine-header {
-            display: grid;
-            grid-template-columns: 202px 1fr auto;
-            align-items: center;
-            gap: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .machine-image {
-            height: 155px;
-            border: 1px solid #dce9e3;
-            border-radius: 13px;
-            background: linear-gradient(145deg, #fff, #f0f7f3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #6b9585;
-            gap: 8px;
-        }
-
-        .machine-image .machine-icon {
-            font-size: 55px;
-        }
-
-        .machine-image small {
-            font-size: 10px;
-        }
-
-        .machine-info .category {
-            color: #00a16c;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 13px;
-        }
-
-        .machine-info h2 {
-            font-size: clamp(19px, 2vw, 30px);
-            margin-bottom: 9px;
-        }
-
-        .machine-info p {
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        .machine-state {
-            text-align: right;
-        }
-
-        .machine-state .mode {
-            display: inline-block;
-            padding: 7px 13px;
-            border-radius: 20px;
-            background: #effaf4;
-            border: 1px solid #a5dec4;
-            color: #008c60;
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .machine-state p {
-            font-size: 11px;
-            margin-bottom: 7px;
-        }
-
-        .machine-state small {
-            font-size: 10px;
-            color: var(--muted);
-        }
-
-        /* TELEMETRY */
-
-        .telemetry-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px;
-            padding-top: 15px;
-        }
-
-        .telemetry-card {
-            position: relative;
-            overflow: hidden;
-            background: white;
-            border: 1px solid #c7e5d8;
-            border-radius: 12px;
-            padding: 15px;
-            min-height: 105px;
-        }
-
-        .telemetry-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 3px;
-            background: #3195f5;
-        }
-
-        .telemetry-card.ok::before {
-            background: #00aa70;
-        }
-
-        .telemetry-card.ng::before {
-            background: #d75b5b;
-        }
-
-        .telemetry-card.yield::before {
-            background: #9264ec;
-        }
-
-        .telemetry-card h4 {
-            font-size: 11px;
-            color: #58766d;
-            margin-bottom: 9px;
-        }
-
-        .telemetry-card .number {
-            font-size: 25px;
-            font-weight: bold;
-        }
-
-        .telemetry-card p {
-            font-size: 10px;
-            color: var(--muted);
-            margin-top: 7px;
-        }
-
-        .telemetry-note {
-            text-align: right;
-            color: var(--muted);
-            font-size: 10px;
-            padding: 12px 0;
-        }
-
-        /* LOWER PANELS */
-
-        .lower-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 13px;
-            margin-top: 5px;
-        }
-
-        .lower-panel {
-            background: white;
-            border: 1px solid #c7e5d8;
-            border-radius: 13px;
-            padding: 18px;
-            min-height: 180px;
-        }
-
-        .lower-panel h3 {
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .io-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .io-item {
-            background: #f4faf7;
-            border: 1px solid #e0eee7;
-            border-radius: 9px;
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-        }
-
-        .io-value {
-            font-weight: bold;
-            color: #008d60;
-        }
-
-        .footer {
-            text-align: right;
-            font-size: 10px;
-            color: var(--muted);
-            padding: 18px 0;
-        }
-
-        /* RESPONSIVE */
-
-        @media (max-width: 1100px) {
-
-            .summary-grid,
-            .telemetry-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .machine-header {
-                grid-template-columns: 150px 1fr;
-            }
-
-            .machine-image {
-                height: 130px;
-            }
-
-            .machine-state {
-                grid-column: 1 / -1;
-                text-align: left;
-            }
-        }
-
-        @media (max-width: 700px) {
-            .sidebar {
-                width: 65px;
-                padding: 12px 7px;
-            }
-
-            .brand {
-                justify-content: center;
-                padding: 0 0 15px;
-            }
-
-            .brand>div:last-child,
-            .nav-text,
-            .collapse span {
-                display: none;
-            }
-
-            .nav-item {
-                justify-content: center;
-                padding: 13px 5px;
-            }
-
-            .main {
-                margin-left: 65px;
-            }
-
-            .topbar {
-                align-items: flex-start;
-            }
-
-            .topbar-info {
-                display: none;
-            }
-
-            .content {
-                padding: 20px 13px;
-            }
-
-            .page-heading h1 {
-                font-size: 23px;
-            }
-
-            .machine-header {
-                grid-template-columns: 1fr;
-            }
-
-            .machine-image {
-                height: 130px;
-            }
-
-            .lower-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .io-list {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 420px) {
-
-            .summary-grid,
-            .telemetry-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 7px;
-            }
-
-            .summary-card,
-            .telemetry-card {
-                padding: 11px;
-            }
-
-            .machine-panel {
-                padding: 13px;
-            }
-
-            .topbar-title p {
-                display: none;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style/style.css">
 </head>
 
 <body>
@@ -585,7 +33,7 @@
                 <span class="nav-text">Condition Monitoring</span>
             </div>
 
-            <div class="nav-item">
+            <div class="nav-item" onclick="window.location.href='alarm_history.html'" style="cursor: pointer;">
                 <span class="nav-icon">♧</span>
                 <span class="nav-text">Alarm History</span>
             </div>
@@ -680,7 +128,8 @@
                     <div class="number" id="running">0</div>
                 </article>
 
-                <article class="summary-card">
+                <article class="summary-card" onclick="window.location.href='alarm_history.html'"
+                    style="cursor: pointer;" title="ดูประวัติ Alarm">
                     <h4>Alarm</h4>
                     <div class="number" id="alarm">0</div>
                 </article>
@@ -779,6 +228,159 @@
                 <div class="telemetry-note">
                     PLC counters recorded · owner-confirmed counters;
                     tightening results have separate occurrence evidence
+                </div>
+
+
+                <!-- TWO GRAPHS: ROBOT CURRENT TREND + MACHINE HEALTH -->
+                <div class="charts-grid">
+
+                    <!-- GRAPH 1: ROBOT CURRENT TREND -->
+                    <article class="chart-card">
+                        <div>
+                            <div class="chart-top">
+                                <div>
+                                    <div class="chart-title-row">
+                                        <span class="chart-icon">ılı</span>
+                                        <h3>Robot Current Trend</h3>
+                                    </div>
+                                    <p class="chart-subtitle">
+                                        Latest <span id="sample-count">120</span> persisted telemetry samples
+                                    </p>
+                                    <p class="chart-range">
+                                        Displayed range
+                                        <strong id="trend-range">
+                                            Nov 13, 2026, 09:02:00 AM GMT+7 — Nov 13, 2026, 09:04:00 AM GMT+7
+                                        </strong>
+                                    </p>
+                                </div>
+
+                                <div class="chart-legend">
+                                    <span class="legend-item">
+                                        <i class="legend-circle x-axis"></i> X Axis
+                                    </span>
+                                    <span class="legend-item">
+                                        <i class="legend-circle y-axis"></i> Y Axis
+                                    </span>
+                                    <span class="legend-item">
+                                        <i class="legend-circle z-axis"></i> Z Axis
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="trend-canvas-wrap">
+                                <canvas id="robot-trend-canvas"></canvas>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- GRAPH 2: MACHINE HEALTH DONUT -->
+                    <article class="chart-card">
+                        <div class="chart-title-row">
+                            <span class="chart-icon">♡</span>
+                            <h3 id="health-card-title">Machine Health · Demo</h3>
+                        </div>
+
+                        <div class="health-donut-container">
+                            <div class="donut-svg-wrap">
+                                <svg viewBox="0 0 164 164">
+                                    <!-- Background Track -->
+                                    <circle cx="82" cy="82" r="64" fill="none" stroke="#d1d5db" stroke-width="18" />
+                                    <!-- Foreground Value Ring -->
+                                    <circle id="health-ring-circle" cx="82" cy="82" r="64" fill="none" stroke="#059669"
+                                        stroke-width="18" stroke-linecap="butt" stroke-dasharray="379.6 402.1" />
+                                </svg>
+                                <div class="donut-center-text">
+                                    <div class="donut-percent" id="health-score-val">94.4%</div>
+                                    <div class="donut-status" id="health-status-label">FROZEN · DEMO</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="health-assessment">
+                            <h4>Health assessment</h4>
+                            <p id="health-assessment-desc">
+                                Demo operating score · synthetic load and quality only; not calibrated health,
+                                maintenance usage or RUL.
+                            </p>
+                        </div>
+                    </article>
+
+                </div>
+
+
+                <!-- ROBOT CONDITION (X, Y, Z AXIS CARDS) -->
+                <div class="robot-condition-section">
+                    <div class="robot-condition-header">
+                        <div class="rc-tag">Robot condition</div>
+                        <h3>Robot Condition</h3>
+                    </div>
+
+                    <div class="robot-axis-grid">
+
+                        <!-- X AXIS -->
+                        <article class="axis-card axis-x">
+                            <div class="axis-card-head">
+                                <h4>X Axis</h4>
+                                <span>Condition evidence</span>
+                            </div>
+
+                            <div class="axis-metric">
+                                <label>X Axis Current</label>
+                                <div class="axis-val"><span id="x-axis-current">0.510</span> A</div>
+                                <small>Recorded · <span id="x-axis-time">13/11/2026, 09:04:00</span></small>
+                            </div>
+
+                            <div class="axis-metric">
+                                <label>Accumulated Travel</label>
+                                <div class="axis-val"><span id="x-axis-travel">168.65</span> m</div>
+                                <small>Recorded <span id="x-travel-updated">Updated just now</span></small>
+                                <small>Approved limit <span id="x-axis-limit">2500.00</span> km</small>
+                            </div>
+                        </article>
+
+                        <!-- Y AXIS -->
+                        <article class="axis-card axis-y">
+                            <div class="axis-card-head">
+                                <h4>Y Axis</h4>
+                                <span>Condition evidence</span>
+                            </div>
+
+                            <div class="axis-metric">
+                                <label>Y Axis Current</label>
+                                <div class="axis-val"><span id="y-axis-current">0.440</span> A</div>
+                                <small>Recorded · <span id="y-axis-time">13/11/2026, 09:04:00</span></small>
+                            </div>
+
+                            <div class="axis-metric">
+                                <label>Accumulated Travel</label>
+                                <div class="axis-val"><span id="y-axis-travel">242.14</span> m</div>
+                                <small>Recorded <span id="y-travel-updated">Updated just now</span></small>
+                                <small>Approved limit <span id="y-axis-limit">2500.00</span> km</small>
+                            </div>
+                        </article>
+
+                        <!-- Z AXIS -->
+                        <article class="axis-card axis-z">
+                            <div class="axis-card-head">
+                                <h4>Z Axis</h4>
+                                <span>Condition evidence</span>
+                            </div>
+
+                            <div class="axis-metric">
+                                <label>Z Axis Current</label>
+                                <div class="axis-val"><span id="z-axis-current">0.608</span> A</div>
+                                <small>Recorded · <span id="z-axis-time">13/11/2026, 09:04:00</span></small>
+                            </div>
+
+                            <div class="axis-metric">
+                                <label>Accumulated Travel</label>
+                                <div class="axis-val"><span id="z-axis-travel">130.29</span> m</div>
+                                <small>Recorded <span id="z-travel-updated">Updated just now</span></small>
+                                <small>Approved limit <span id="z-axis-limit">2500.00</span> km</small>
+                            </div>
+                        </article>
+
+                    </div>
                 </div>
 
 
@@ -911,6 +513,23 @@
                 ng: 3
             },
 
+            robot: {
+                xCurrent: 0.510,
+                yCurrent: 0.440,
+                zCurrent: 0.608,
+                xTravel: 168.65,
+                yTravel: 242.14,
+                zTravel: 130.29,
+                approvedLimit: 2500.00
+            },
+
+            condition: {
+                healthScore: 94.4,
+                healthStatus: "FROZEN · DEMO",
+                healthTitle: "Machine Health · Demo",
+                healthAssessment: "Demo operating score · synthetic load and quality only; not calibrated health, maintenance usage or RUL."
+            },
+
             io: {
                 "PLC Connection": true,
                 "Machine Running": false,
@@ -920,6 +539,273 @@
 
             sourceTimestamp: null
         };
+
+
+        // =========================================
+        // TREND SAMPLES STATE (FROM DATABASE)
+        // =========================================
+
+        let trendSamples = [];
+        let chartYMin = 0.4;
+        let chartYMax = 2.0;
+
+
+        // =========================================
+        // DRAW ROBOT CURRENT TREND CHART (CANVAS)
+        // =========================================
+
+        function drawRobotTrendChart() {
+            const canvas = document.getElementById("robot-trend-canvas");
+            if (!canvas) return;
+
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const width = Math.max(320, rect.width);
+            const height = Math.max(190, rect.height);
+
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+
+            const ctx = canvas.getContext("2d");
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, width, height);
+
+            const padLeft = 46;
+            const padRight = 14;
+            const padTop = 10;
+            const padBottom = 26;
+            const plotW = width - padLeft - padRight;
+            const plotH = height - padTop - padBottom;
+
+            const yMin = chartYMin;
+            const yMax = chartYMax;
+            const yTicks = [0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0];
+
+            // Horizontal Grid Lines & Y-axis Labels
+            ctx.font = "10px Arial, sans-serif";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+
+            yTicks.forEach(val => {
+                const ratio = (val - yMin) / (yMax - yMin);
+                const yPos = padTop + plotH - ratio * plotH;
+
+                ctx.strokeStyle = "#ecf4f0";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padLeft, yPos);
+                ctx.lineTo(padLeft + plotW, yPos);
+                ctx.stroke();
+
+                ctx.fillStyle = "#69847e";
+                ctx.fillText(val.toFixed(1), padLeft - 7, yPos);
+            });
+
+            const totalSlots = Math.max(46, trendSamples.length);
+
+            // Vertical Grid Lines & X-axis Labels
+            if (trendSamples.length > 0) {
+                const xTickCount = 7;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
+
+                for (let t = 0; t < xTickCount; t++) {
+                    const slotIdx = Math.round((t / (xTickCount - 1)) * (totalSlots - 1));
+                    const xPos = padLeft + (slotIdx / Math.max(1, totalSlots - 1)) * plotW;
+
+                    ctx.strokeStyle = "#f2f8f5";
+                    ctx.beginPath();
+                    ctx.moveTo(xPos, padTop);
+                    ctx.lineTo(xPos, padTop + plotH);
+                    ctx.stroke();
+
+                    if (trendSamples[slotIdx]) {
+                        ctx.fillStyle = "#69847e";
+                        ctx.fillText(trendSamples[slotIdx].timestamp || trendSamples[slotIdx].timeLabel || "", xPos, padTop + plotH + 7);
+                    } else if (t === 0 && trendSamples[0]) {
+                        ctx.fillStyle = "#69847e";
+                        ctx.fillText(trendSamples[0].timestamp || "", xPos, padTop + plotH + 7);
+                    }
+                }
+            }
+
+            // Y-axis Rotated Title "Current (A)"
+            ctx.save();
+            ctx.translate(12, padTop + plotH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#54746a";
+            ctx.font = "10px Arial, sans-serif";
+            ctx.fillText("Current (A)", 0, 0);
+            ctx.restore();
+
+            // Helper to plot a series from DB samples
+            function plotSeries(key, color) {
+                if (trendSamples.length === 0) return;
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1.6;
+                ctx.lineJoin = "round";
+                ctx.beginPath();
+
+                trendSamples.forEach((pt, i) => {
+                    const val = Math.max(yMin, Math.min(yMax, Number(pt[key]) || yMin));
+                    const x = padLeft + (i / Math.max(1, totalSlots - 1)) * plotW;
+                    const y = padTop + plotH - ((val - yMin) / (yMax - yMin)) * plotH;
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+
+                ctx.stroke();
+            }
+
+            // Draw Z, Y, X lines
+            plotSeries("z", "#8b5cf6");
+            plotSeries("y", "#3b82f6");
+            plotSeries("x", "#10b981");
+
+            // Draw active/latest point markers so graph and axis cards visually correlate
+            if (trendSamples.length > 0) {
+                const activeIdx = hoveredSampleIndex !== null
+                    ? Math.min(trendSamples.length - 1, Math.max(0, hoveredSampleIndex))
+                    : trendSamples.length - 1;
+                const activePt = trendSamples[activeIdx];
+                const activeX = padLeft + (activeIdx / Math.max(1, totalSlots - 1)) * plotW;
+
+                if (hoveredSampleIndex !== null) {
+                    ctx.save();
+                    ctx.strokeStyle = "#94b8ab";
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([3, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(activeX, padTop);
+                    ctx.lineTo(activeX, padTop + plotH);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                [
+                    { key: "z", color: "#8b5cf6" },
+                    { key: "y", color: "#3b82f6" },
+                    { key: "x", color: "#10b981" }
+                ].forEach(({ key, color }) => {
+                    const val = Math.max(yMin, Math.min(yMax, Number(activePt[key]) || yMin));
+                    const ptY = padTop + plotH - ((val - yMin) / (yMax - yMin)) * plotH;
+
+                    ctx.beginPath();
+                    ctx.arc(activeX, ptY, 3.5, 0, Math.PI * 2);
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = color;
+                    ctx.stroke();
+                });
+            }
+        }
+
+        let hoveredSampleIndex = null;
+        let currentRobotMeta = {};
+
+        function syncAxisCardsFromGraph(sampleIdx = null) {
+            const idx = sampleIdx !== null && trendSamples[sampleIdx]
+                ? sampleIdx
+                : trendSamples.length - 1;
+
+            const activeSample = idx >= 0 ? trendSamples[idx] : null;
+            const fallbackTime = formatTime(latestData?.sourceTimestamp);
+
+            // ดึงค่า X, Y, Z Current และเวลาจากจุดล่าสุดของกราฟโดยตรง
+            const xCurr = Number(activeSample?.x ?? currentRobotMeta.xCurrent ?? 0.510);
+            const yCurr = Number(activeSample?.y ?? currentRobotMeta.yCurrent ?? 0.440);
+            const zCurr = Number(activeSample?.z ?? currentRobotMeta.zCurrent ?? 0.608);
+            const recTime = activeSample?.timestamp || currentRobotMeta.recordedTime || fallbackTime;
+
+            const xTravel = Number(activeSample?.xTravel ?? currentRobotMeta.xTravel ?? 168.65);
+            const yTravel = Number(activeSample?.yTravel ?? currentRobotMeta.yTravel ?? 242.14);
+            const zTravel = Number(activeSample?.zTravel ?? currentRobotMeta.zTravel ?? 130.29);
+            const limitKm = Number(currentRobotMeta.approvedLimit ?? 2500.00);
+
+            document.getElementById("x-axis-current").textContent = xCurr.toFixed(3);
+            document.getElementById("y-axis-current").textContent = yCurr.toFixed(3);
+            document.getElementById("z-axis-current").textContent = zCurr.toFixed(3);
+
+            document.getElementById("x-axis-time").textContent = recTime;
+            document.getElementById("y-axis-time").textContent = recTime;
+            document.getElementById("z-axis-time").textContent = recTime;
+
+            document.getElementById("x-axis-travel").textContent = xTravel.toFixed(2);
+            document.getElementById("y-axis-travel").textContent = yTravel.toFixed(2);
+            document.getElementById("z-axis-travel").textContent = zTravel.toFixed(2);
+
+            document.getElementById("x-axis-limit").textContent = limitKm.toFixed(2);
+            document.getElementById("y-axis-limit").textContent = limitKm.toFixed(2);
+            document.getElementById("z-axis-limit").textContent = limitKm.toFixed(2);
+
+            const updatedText = currentRobotMeta.travelUpdatedText || "Updated just now";
+            document.getElementById("x-travel-updated").textContent = updatedText;
+            document.getElementById("y-travel-updated").textContent = updatedText;
+            document.getElementById("z-travel-updated").textContent = updatedText;
+        }
+
+        // Hover interaction on graph canvas to inspect any sample in the Axis cards, snapping back to latest sample on leave
+        const trendCanvasEl = document.getElementById("robot-trend-canvas");
+        if (trendCanvasEl) {
+            trendCanvasEl.addEventListener("mousemove", (e) => {
+                if (trendSamples.length === 0) return;
+                const rect = trendCanvasEl.getBoundingClientRect();
+                const padLeft = 46;
+                const padRight = 14;
+                const plotW = rect.width - padLeft - padRight;
+                const relX = Math.max(0, Math.min(plotW, e.clientX - rect.left - padLeft));
+                const totalSlots = Math.max(46, trendSamples.length);
+                const slotIdx = Math.round((relX / Math.max(1, plotW)) * (totalSlots - 1));
+                const idx = Math.min(trendSamples.length - 1, Math.max(0, slotIdx));
+                hoveredSampleIndex = idx;
+                syncAxisCardsFromGraph(idx);
+                drawRobotTrendChart();
+            });
+
+            trendCanvasEl.addEventListener("mouseleave", () => {
+                hoveredSampleIndex = null;
+                syncAxisCardsFromGraph(null);
+                drawRobotTrendChart();
+            });
+        }
+
+        window.addEventListener("resize", drawRobotTrendChart);
+
+
+        // =========================================
+        // UPDATE MACHINE HEALTH DONUT
+        // =========================================
+
+        function updateHealthDonut(score, statusLabel, titleText, descText) {
+            const clamped = Math.max(0, Math.min(100, Number(score) || 0));
+            const radius = 64;
+            const circumference = 2 * Math.PI * radius; // ~402.12
+            const filled = (clamped / 100) * circumference;
+
+            const ring = document.getElementById("health-ring-circle");
+            if (ring) {
+                ring.setAttribute("stroke-dasharray", `${filled.toFixed(1)} ${circumference.toFixed(1)}`);
+            }
+
+            document.getElementById("health-score-val").textContent = `${clamped.toFixed(1)}%`;
+
+            if (statusLabel) {
+                document.getElementById("health-status-label").textContent = statusLabel;
+            }
+            if (titleText) {
+                document.getElementById("health-card-title").textContent = titleText;
+            }
+            if (descText) {
+                document.getElementById("health-assessment-desc").textContent = descText;
+            }
+        }
 
 
         // =========================================
@@ -1122,6 +1008,119 @@
             document.getElementById("current-time").textContent =
                 new Date().toLocaleString("th-TH");
 
+
+            // =========================================
+            // ROBOT CURRENT TREND GRAPH & AXIS CARDS (SYNCED)
+            // =========================================
+
+            const robot = data.robot || {};
+            const condition = data.condition || {};
+            const charts = data.charts || {};
+            const trendChartDb = charts.robotCurrentTrend || {};
+            const healthChartDb = charts.machineHealth || {};
+
+            currentRobotMeta = robot;
+
+            // 1. Load Graph 1 (Robot Current Trend) from DB (charts.robotCurrentTrend.samples or robot.history)
+            if (trendChartDb.yMin !== undefined) chartYMin = Number(trendChartDb.yMin);
+            if (trendChartDb.yMax !== undefined) chartYMax = Number(trendChartDb.yMax);
+
+            const rawDbSamples = trendChartDb.samples ?? robot.history ?? null;
+            if (rawDbSamples) {
+                const sampleList = Array.isArray(rawDbSamples)
+                    ? rawDbSamples
+                    : Object.values(rawDbSamples);
+
+                if (sampleList.length > 0) {
+                    const factorX = Number(robot.meterPerAmpX ?? 5.53677);
+                    const factorY = Number(robot.meterPerAmpY ?? 8.44576);
+                    const factorZ = Number(robot.meterPerAmpZ ?? 3.56354);
+
+                    let cumX = Number(robot.baseXTravel ?? 0);
+                    let cumY = Number(robot.baseYTravel ?? 0);
+                    let cumZ = Number(robot.baseZTravel ?? 0);
+
+                    trendSamples = sampleList.slice(-120).map(item => {
+                        const xVal = Number(item.x ?? item.xCurrent ?? 0.510);
+                        const yVal = Number(item.y ?? item.yCurrent ?? 0.440);
+                        const zVal = Number(item.z ?? item.zCurrent ?? 0.608);
+
+                        // สะสมระยะทางการเคลื่อนที่/ทำงานของแต่ละแกน (m) จากข้อมูลในกราฟ
+                        cumX += xVal * factorX;
+                        cumY += yVal * factorY;
+                        cumZ += zVal * factorZ;
+
+                        return {
+                            timestamp: item.timestamp || item.timeLabel || formatTime(item.time),
+                            x: xVal,
+                            y: yVal,
+                            z: zVal,
+                            xTravel: item.xTravel !== undefined ? Number(item.xTravel) : cumX,
+                            yTravel: item.yTravel !== undefined ? Number(item.yTravel) : cumY,
+                            zTravel: item.zTravel !== undefined ? Number(item.zTravel) : cumZ
+                        };
+                    });
+                }
+            } else if (rawData && (rawData.robot || rawData.xCurrent !== undefined)) {
+                const now = new Date();
+                const factorX = Number(robot.meterPerAmpX ?? 5.53677);
+                const factorY = Number(robot.meterPerAmpY ?? 8.44576);
+                const factorZ = Number(robot.meterPerAmpZ ?? 3.56354);
+
+                const prevSample = trendSamples[trendSamples.length - 1];
+                const xVal = Number(robot.xCurrent ?? rawData.xCurrent ?? 0.510);
+                const yVal = Number(robot.yCurrent ?? rawData.yCurrent ?? 0.440);
+                const zVal = Number(robot.zCurrent ?? rawData.zCurrent ?? 0.608);
+
+                trendSamples.push({
+                    timestamp: now.toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: false
+                    }),
+                    x: xVal,
+                    y: yVal,
+                    z: zVal,
+                    xTravel: (prevSample?.xTravel ?? Number(robot.xTravel ?? 168.65)) + xVal * factorX,
+                    yTravel: (prevSample?.yTravel ?? Number(robot.yTravel ?? 242.14)) + yVal * factorY,
+                    zTravel: (prevSample?.zTravel ?? Number(robot.zTravel ?? 130.29)) + zVal * factorZ
+                });
+                if (trendSamples.length > 120) {
+                    trendSamples.shift();
+                }
+            }
+
+            if (trendChartDb.displayedRange) {
+                document.getElementById("trend-range").textContent = trendChartDb.displayedRange;
+            } else if (trendSamples.length > 1) {
+                const firstSample = trendSamples[0];
+                const lastSample = trendSamples[trendSamples.length - 1];
+                document.getElementById("trend-range").textContent =
+                    `${firstSample.timestamp} GMT+7 — ${lastSample.timestamp} GMT+7`;
+            }
+
+            document.getElementById("sample-count").textContent = trendSamples.length || 120;
+
+            // 2. Sync X, Y, Z Axis Cards directly from the latest sample of the graph
+            syncAxisCardsFromGraph(hoveredSampleIndex);
+            drawRobotTrendChart();
+
+
+            // =========================================
+            // MACHINE HEALTH DONUT GRAPH (FROM DB)
+            // =========================================
+
+            const healthScore = healthChartDb.score ?? condition.healthScore ?? rawData?.healthScore ?? 94.4;
+            const healthStatus = healthChartDb.status ?? condition.healthStatus ?? (isConnected ? "LIVE · TELEMETRY" : "FROZEN · DEMO");
+            const healthTitle = healthChartDb.title ?? condition.healthTitle ?? "Machine Health · Demo";
+            const healthAssessment = healthChartDb.assessmentDescription ?? condition.healthAssessment;
+
+            updateHealthDonut(healthScore, healthStatus, healthTitle, healthAssessment);
+
         }
 
 
@@ -1148,12 +1147,30 @@
 
 
         // =========================================
-        // INITIAL RENDER
+        // INITIAL RENDER & LOAD FROM data.json DB
         // =========================================
 
         let latestData = {};
 
+        async function loadInitialJsonDatabase() {
+            try {
+                const res = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
+                if (res.ok) {
+                    const dbJson = await res.json();
+                    latestData = mergeData(latestData, dbJson);
+                    updateDashboard(
+                        latestData,
+                        document.getElementById("server-status").textContent === "Server Connected"
+                    );
+                }
+            } catch (err) {
+                console.warn("Local data.json fetch skipped:", err);
+            }
+        }
+
         updateDashboard(latestData, false);
+        loadInitialJsonDatabase();
+        setInterval(loadInitialJsonDatabase, 1000);
 
 
         // =========================================
@@ -1181,13 +1198,17 @@
             });
 
 
-            // PLC DATA
+            // ROOT / PLC-IO DATABASE LISTENER (Supports importing data.json at root or under PLC-IO)
 
-            const plcRef = ref(database, "PLC-IO");
+            const rootRef = ref(database);
 
-            onValue(plcRef, (snapshot) => {
+            onValue(rootRef, (snapshot) => {
 
-                latestData = snapshot.val() || {};
+                const rootVal = snapshot.val();
+                if (!rootVal) return;
+
+                const plcNode = rootVal["PLC-IO"] || {};
+                latestData = mergeData(latestData, { ...rootVal, ...plcNode });
 
                 updateDashboard(
                     latestData,
@@ -1201,7 +1222,7 @@
 
                 setConnection(false);
 
-                updateDashboard({}, false);
+                updateDashboard(latestData, false);
 
             });
 

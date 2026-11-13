@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarm History | Predictive Maintenance Operations Console</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style/alarm_history.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">EE</div>
+            <div>
+                <h3>Predictive Maintenance</h3>
+                <p>Fault Alert System</p>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-item" onclick="window.location.href='index.html'">
+                <span class="nav-icon">⌂</span>
+                <span class="nav-text">Machine Overview</span>
+            </div>
+
+            <div class="nav-item" onclick="window.location.href='index.html'">
+                <span class="nav-icon">⌁</span>
+                <span class="nav-text">Condition Monitoring</span>
+            </div>
+
+            <div class="nav-item active">
+                <span class="nav-icon">♧</span>
+                <span class="nav-text">Alarm History</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">⚒</span>
+                <span class="nav-text">Maintenance</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">♧</span>
+                <span class="nav-text">Experiment / Demo</span>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span class="nav-text">Settings</span>
+            </div>
+        </nav>
+
+        <button class="collapse" onclick="toggleSidebar()">
+            <span>‹ &nbsp; Collapse</span>
+            ‹
+        </button>
+    </aside>
+
+    <!-- MAIN CONTAINER -->
+    <main class="main">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-title">
+                <h3>Operations Console</h3>
+                <p>Predictive maintenance and fault monitoring</p>
+            </div>
+
+            <div class="topbar-right">
+                <span class="status-pill" id="server-status">Server: Connected</span>
+                <span class="status-pill" id="telemetry-status">Telemetry: Connected</span>
+                <span class="topbar-info" id="current-clock">--</span>
+                <span class="topbar-info" style="color: #8da49e;">UI build recording-real-ui-20261112-v1</span>
+                <span class="topbar-link">Recording viewer</span>
+                <span class="topbar-link">Password</span>
+                <span class="topbar-link">Logout</span>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <section class="content">
+
+            <!-- PAGE HEADER -->
+            <div class="page-header">
+                <a href="index.html" class="back-link">← Back to Overview</a>
+                <div class="header-row">
+                    <div>
+                        <div class="category-tag">Alarm history</div>
+                        <h1 class="page-title">Alarm History</h1>
+                        <p class="machine-subtitle" id="header-machine-name">SCREW ROTARY BARREL MACHINE / KV-5500</p>
+                    </div>
+
+                    <div class="lifecycle-badge">
+                        Backend lifecycle: Manual
+                    </div>
+                </div>
+            </div>
+
+            <!-- MACHINE DETAILS (ACCORDION) -->
+            <div class="details-card">
+                <div class="details-header" onclick="toggleMachineDetails()">
+                    <div class="details-title">
+                        <strong>Machine details</strong>
+                        <span>ID, code, configuration, and record timestamp</span>
+                    </div>
+                    <button class="toggle-btn" id="details-toggle-btn">Show</button>
+                </div>
+
+                <div class="details-content" id="details-panel" style="display: none;">
+                    <div class="details-item">
+                        <label>Machine Model</label>
+                        <value id="det-model">Keyence KV-5500</value>
+                    </div>
+                    <div class="details-item">
+                        <label>PLC IP Address</label>
+                        <value id="det-ip">192.168.0.60 : 8501</value>
+                    </div>
+                    <div class="details-item">
+                        <label>Protocol</label>
+                        <value>Keyence KV Host Link (TCP)</value>
+                    </div>
+                    <div class="details-item">
+                        <label>AJAX Polling Status</label>
+                        <value id="ajax-status-text" style="color:#00865b;">Live (Auto-sync 3s)</value>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MACHINE OBSERVATIONS -->
+            <section class="card" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title">Machine observations</h3>
+                    <p class="card-subtext">Recorded · <span id="obs-record-time">13/11/2026, 09:04:00</span> ·
+                        Asia/Bangkok</p>
+                </div>
+
+                <!-- 5 Columns Grid -->
+                <div class="obs-grid">
+                    <div class="obs-col">
+                        <label>State</label>
+                        <div class="obs-val" id="obs-state">MANUAL</div>
+                        <div class="obs-sub">Current observed telemetry state</div>
+                    </div>
+
+                    <div class="obs-col">
+                        <label>PLC connection</label>
+                        <div class="obs-val" style="color: #00865b;" id="obs-plc-conn">Read successful</div>
+                    </div>
+
+                    <div class="obs-col">
+                        <label>Robot-data read status</label>
+                        <div class="obs-val" id="obs-robot-status">Robot data read successful via PLC</div>
+                    </div>
+
+                    <div class="obs-col">
+                        <label>PLC timer (pause-inclusive)</label>
+                        <div class="obs-val"><span id="obs-plc-timer">18.00</span> s · <span
+                                id="obs-timer-time">13/11/2026, 09:04:00</span></div>
+                        <div class="obs-sub">Recorded</div>
+                    </div>
+
+                    <div class="obs-col">
+                        <label>Verified active alarm</label>
+                        <div class="obs-val" id="obs-verified-alarm">No active authoritative alarm record</div>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <label>PLC OK (KV:DM12) / NG (KV:DM14)</label>
+                        <div class="stat-num" id="obs-ok-ng">6 / 3</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <label>PLC total · OK + NG</label>
+                        <div class="stat-num" id="obs-total">9</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <label>Yield / NG rate · PLC counter ratios</label>
+                        <div class="stat-num" id="obs-yield-rate">66.67 % / 33.33 %</div>
+                    </div>
+
+                    <div class="stat-item">
+                        <label>Counter source time</label>
+                        <div class="stat-num" id="obs-counter-time"
+                            style="font-size: 13px; font-weight: normal; color: #4b635c;">13/11/2026, 09:04:00</div>
+                    </div>
+                </div>
+
+                <!-- Footnotes -->
+                <div class="obs-footnotes">
+                    <p>PLC timer observations may include Pause; a validated per-piece production cycle is not
+                        established. Raw values and original source times are retained.</p>
+                    <p>Robot-data read status is PLC-mirrored evidence, not independently verified RCON health. RUNNING
+                        does not establish health.</p>
+                </div>
+
+                <!-- Context Links -->
+                <div class="context-links">
+                    <span>Operating context and quality</span>
+                    <div class="link-row">
+                        <a href="index.html">Overview</a>
+                        <a>Health</a>
+                        <a>Robot</a>
+                        <a>Cylinders</a>
+                        <a>Electrical</a>
+                        <a>Alerts</a>
+                        <a>Observed PLC alarm bits</a>
+                    </div>
+                </div>
+
+                <!-- Alert Warning Banner -->
+                <div class="alert-banner">
+                    <strong>Resolving an alarm does not end downtime.</strong> Downtime continues while waiting Ready:
+                    this scenario closes it when Ready enters MANUAL.
+                </div>
+            </section>
+
+            <!-- CURRENT CONDITION / ACTIVE ALARM -->
+            <section class="card">
+                <div class="card-header">
+                    <div class="card-tag">Current condition</div>
+                    <h3 class="card-title">Active alarm</h3>
+                </div>
+
+                <div id="active-alarm-container">
+                    <div class="empty-alarm">
+                        <div class="empty-icon">-</div>
+                        <div>
+                            <strong>No active alarms</strong>
+                            <p style="color: #728c85; font-size: 11px; margin-top: 2px;">No open or acknowledged alarm
+                                is available.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ALARM RECORDS / ALARM HISTORY -->
+            <section class="card">
+                <div class="card-header filter-header">
+                    <div>
+                        <div class="card-tag">Alarm records</div>
+                        <h3 class="card-title">Alarm history</h3>
+                        <p class="card-subtext">Search and filter this machine's recent alarm history.</p>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button class="btn-ajax-refresh" id="btn-refresh" onclick="triggerAjaxRefresh()"
+                            title="คลิกเพื่อดึงข้อมูลล่าสุดด้วย AJAX">
+                            <span id="refresh-icon">🔄</span>
+                            <span>AJAX Sync</span>
+                        </button>
+                        <span id="shown-counter" style="color: var(--muted); font-size: 11px; font-weight: bold;">3 of 3
+                            shown</span>
+                    </div>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <input type="text" id="search-input" class="search-input"
+                        placeholder="Search Code, title, or description" oninput="applyFilters()">
+
+                    <select id="filter-severity" class="filter-select" onchange="applyFilters()">
+                        <option value="all">All severities</option>
+                        <option value="CRITICAL">CRITICAL</option>
+                        <option value="MAJOR">MAJOR</option>
+                        <option value="MINOR">MINOR</option>
+                    </select>
+
+                    <select id="filter-source" class="filter-select" onchange="applyFilters()">
+                        <option value="all">All sources</option>
+                        <option value="PLC">PLC</option>
+                        <option value="ROBOT">ROBOT</option>
+                    </select>
+
+                    <select id="filter-status" class="filter-select" onchange="applyFilters()">
+                        <option value="all">All statuses</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Active">Active</option>
+                        <option value="Acknowledged">Acknowledged</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="alarm-table">
+                        <thead>
+                            <tr>
+                                <th>Opened</th>
+                                <th>Severity</th>
+                                <th>Source</th>
+                                <th>Alarm</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alarm-tbody">
+                            <!-- Rows injected via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footnote">
+                    Alarm records remain separate from the read-only PLC/RCON transition evidence below.
+                </div>
+            </section>
+
+        </section>
+    </main>
+
+    <!-- MODAL POPUP FOR ALARM DETAILS -->
+    <div class="modal-overlay" id="alarm-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title" style="font-size: 16px; color: var(--text);">Alarm Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="modal-row">
+                <label>Alarm Code / Bit:</label>
+                <span id="modal-code" class="alarm-code-tag">--</span>
+            </div>
+
+            <div class="modal-row">
+                <label>Severity:</label>
+                <span id="modal-severity">--</span>
+            </div>
+
+            <div class="modal-row">
+                <label>Source:</label>
+                <span id="modal-source">--</span>
+            </div>
+
+            <div class="modal-row">
+                <label>Opened Time:</label>
+                <span id="modal-opened">--</span>
+            </div>
+
+            <div class="modal-row">
+                <label>Resolved Time:</label>
+                <span id="modal-resolved">--</span>
+            </div>
+
+            <div class="modal-row">
+                <label>Downtime Duration:</label>
+                <span id="modal-duration">--</span>
+            </div>
+
+            <div class="modal-desc">
+                <strong style="display:block; margin-bottom:4px;">รายละเอียด & การแก้ไข:</strong>
+                <p id="modal-desc-text">--</p>
+                <p id="modal-remedy-text" style="margin-top:6px; color: #00865b; font-weight: 500;">--</p>
+            </div>
+
+            <button onclick="closeModal()"
+                style="margin-top: 18px; width: 100%; padding: 10px; background: #079568; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                ปิดหน้าต่าง
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- JAVASCRIPT: AJAX & REAL-TIME LOGIC                            -->
+    <!-- ============================================================== -->
+    <script>
+        // ==========================================
+        // 1. DEFAULT MOCK DATA (ตรงกับรูปที่ส่งมา)
+        // ==========================================
+        const initialAlarmDataset = {
+            machine: {
+                name: "SCREW ROTARY BARREL MACHINE / KV-5500",
+                model: "KV-5500",
+                ip: "192.168.0.60:8501",
+                state: "MANUAL",
+                plcConnection: "Read successful",
+                robotStatus: "Robot data read successful via PLC",
+                plcTimer: 18.00,
+                timerRecorded: "13/11/2026, 09:04:00",
+                activeAlarmSummary: "No active authoritative alarm record",
+                okCount: 6,
+                ngCount: 3,
+                totalCount: 9,
+                yieldRate: "66.67 %",
+                ngRate: "33.33 %",
+                counterTime: "13/11/2026, 09:04:00"
+            },
+            activeAlarms: [],
+            alarmHistory: [
+                {
+                    id: "ALM-001",
+                    opened: "13/11/2026, 09:02:00",
+                    resolved: "13/11/2026, 09:02:30",
+                    duration: "30s",
+                    severity: "MAJOR",
+                    source: "PLC",
+                    title: "Vacuum Error",
+                    code: "R20611",
+                    deviceBit: "R20611",
+                    status: "Resolved",
+                    description: "แรงดันสุญญากาศ (Vacuum) ไม่ถึงเกณฑ์ในเวลาที่กำหนด",
+                    remedy: "ตรวจเช็กหัวดูด (Suction Cup) และแรงดันลมต้นทาง"
+                },
+                {
+                    id: "ALM-002",
+                    opened: "13/11/2026, 09:02:49",
+                    resolved: "13/11/2026, 09:03:10",
+                    duration: "21s",
+                    severity: "MAJOR",
+                    source: "PLC",
+                    title: "Feed Error",
+                    code: "R20613",
+                    deviceBit: "R20613",
+                    status: "Resolved",
+                    description: "ชิ้นงานติดขัดในชุดป้อนสกรู (Rotary barrel feeder timeout)",
+                    remedy: "ตรวจสอบรางป้อนสกรูว่ามีสกรูติดขัดหรือเซนเซอร์เคลื่อนหรือไม่"
+                },
+                {
+                    id: "ALM-003",
+                    opened: "13/11/2026, 09:03:25",
+                    resolved: "13/11/2026, 09:03:55",
+                    duration: "30s",
+                    severity: "CRITICAL",
+                    source: "PLC",
+                    title: "Emergency Stop",
+                    code: "PLC_EMERGENCY_R35000",
+                    deviceBit: "R35000",
+                    status: "Resolved",
+                    description: "สวิตช์หยุดฉุกเฉิน (E-Stop) ถูกกด หรือวงจร Safety เปิด",
+                    remedy: "ปลดปุ่ม E-Stop และรีเซ็ต Safety Relay ที่ตู้ควบคุม"
+                }
+            ]
+        };
+
+        let currentAlarmHistory = [...initialAlarmDataset.alarmHistory];
+        let currentActiveAlarms = [...initialAlarmDataset.activeAlarms];
+
+        // ==========================================
+        // 2. AJAX FETCH FUNCTION
+        // ==========================================
+        async function fetchAlarmDataAjax() {
+            const refreshBtn = document.getElementById("btn-refresh");
+            refreshBtn.classList.add("spinning");
+
+            try {
+                // 1) ยิง AJAX ไปยัง alarm_data.json เพื่อดึงประวัติ Alarm
+                const response = await fetch("alarm_data.json?timestamp=" + Date.now(), {
+                    cache: "no-store"
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.alarmHistory) {
+                        currentAlarmHistory = data.alarmHistory;
+                    }
+                    if (data.activeAlarms) {
+                        currentActiveAlarms = data.activeAlarms;
+                    }
+                    if (data.machine) {
+                        updateMachineObservations(data.machine);
+                    }
+                    document.getElementById("server-status").className = "status-pill";
+                    document.getElementById("server-status").textContent = "Server: Connected";
+                }
+            } catch (err) {
+                console.warn("[AJAX] Fetch fallback to local alarm dataset:", err);
+            }
+
+            try {
+                // 2) ยิง AJAX ไปยัง data.json (Realtime Metrics & IO จาก main.py/PLC)
+                const resData = await fetch("data.json?timestamp=" + Date.now(), {
+                    cache: "no-store"
+                });
+
+                if (resData.ok) {
+                    const live = await resData.json();
+                    if (live.metrics) {
+                        const ok = live.metrics.ok ?? 6;
+                        const ng = live.metrics.ng ?? 3;
+                        const total = live.metrics.total ?? (ok + ng);
+                        const yieldVal = live.metrics.yield ?? ((ok / total) * 100).toFixed(1);
+                        const ngRate = (100 - yieldVal).toFixed(2);
+
+                        document.getElementById("obs-ok-ng").textContent = `${ok} / ${ng}`;
+                        document.getElementById("obs-total").textContent = total;
+                        document.getElementById("obs-yield-rate").textContent = `${yieldVal} % / ${ngRate} %`;
+
+                        if (live.metrics.plcTimer !== undefined) {
+                            document.getElementById("obs-plc-timer").textContent = Number(live.metrics.plcTimer).toFixed(2);
+                        }
+                    }
+
+                    if (live.machine && live.machine.mode) {
+                        document.getElementById("obs-state").textContent = live.machine.mode;
+                    }
+
+                    if (live.alarm && live.alarm.active) {
+                        currentActiveAlarms = [{
+                            id: "LIVE-ALM",
+                            opened: new Date().toLocaleTimeString("th-TH"),
+                            severity: live.alarm.severity || "CRITICAL",
+                            source: "PLC",
+                            title: live.alarm.alarmMessage || "Active PLC Alarm",
+                            code: "CODE_" + (live.alarm.alarmCode || "ERROR"),
+                            deviceBit: "R-ALARM",
+                            status: "Active",
+                            description: "ตรวจพบสัญญาณเตือนจาก PLC ขณะนี้",
+                            remedy: "ตรวจสอบจุดขัดข้องตามรหัสเตือน"
+                        }];
+                    }
+                }
+            } catch (err) {
+                // Silent fallback
+            } finally {
+                setTimeout(() => {
+                    refreshBtn.classList.remove("spinning");
+                }, 400);
+
+                renderActiveAlarms();
+                applyFilters();
+            }
+        }
+
+        function triggerAjaxRefresh() {
+            fetchAlarmDataAjax();
+        }
+
+        // ==========================================
+        // 3. RENDER ACTIVE ALARMS
+        // ==========================================
+        function renderActiveAlarms() {
+            const container = document.getElementById("active-alarm-container");
+
+            if (!currentActiveAlarms || currentActiveAlarms.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-alarm">
+                        <div class="empty-icon">-</div>
+                        <div>
+                            <strong>No active alarms</strong>
+                            <p style="color: #728c85; font-size: 11px; margin-top: 2px;">No open or acknowledged alarm is available.</p>
+                        </div>
+                    </div>
+                `;
+                document.getElementById("obs-verified-alarm").textContent = "No active authoritative alarm record";
+                document.getElementById("obs-verified-alarm").style.color = "var(--text)";
+            } else {
+                const alarm = currentActiveAlarms[0];
+                container.innerHTML = `
+                    <div class="active-alarm-box">
+                        <div>
+                            <span class="severity-badge ${alarm.severity.toLowerCase()}">${alarm.severity}</span>
+                            <strong style="margin-left: 8px; font-size: 14px;">${alarm.title}</strong>
+                            <span class="alarm-code-tag" style="margin-left: 6px;">${alarm.code}</span>
+                            <div style="font-size: 11px; color: #7f1d1d; margin-top: 4px;">
+                                Opened at ${alarm.opened} · Source: ${alarm.source}
+                            </div>
+                        </div>
+                        <button onclick="acknowledgeAlarm('${alarm.id}')" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">
+                            Acknowledge
+                        </button>
+                    </div>
+                `;
+                document.getElementById("obs-verified-alarm").textContent = `Active: ${alarm.title} (${alarm.code})`;
+                document.getElementById("obs-verified-alarm").style.color = "#dc2626";
+            }
+        }
+
+        // ==========================================
+        // 4. RENDER ALARM HISTORY TABLE WITH FILTERS
+        // ==========================================
+        function applyFilters() {
+            const searchKeyword = document.getElementById("search-input").value.toLowerCase().trim();
+            const filterSeverity = document.getElementById("filter-severity").value;
+            const filterSource = document.getElementById("filter-source").value;
+            const filterStatus = document.getElementById("filter-status").value;
+
+            const filtered = currentAlarmHistory.filter(item => {
+                const matchSearch = !searchKeyword ||
+                    item.title.toLowerCase().includes(searchKeyword) ||
+                    item.code.toLowerCase().includes(searchKeyword) ||
+                    (item.description && item.description.toLowerCase().includes(searchKeyword));
+
+                const matchSeverity = filterSeverity === "all" || item.severity === filterSeverity;
+                const matchSource = filterSource === "all" || item.source === filterSource;
+                const matchStatus = filterStatus === "all" || item.status === filterStatus;
+
+                return matchSearch && matchSeverity && matchSource && matchStatus;
+            });
+
+            const tbody = document.getElementById("alarm-tbody");
+            tbody.innerHTML = "";
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 24px; color: var(--muted);">
+                            ไม่พบประวัติ Alarm ตามเงื่อนไขที่ค้นหา
+                        </td>
+                    </tr>
+                `;
+            } else {
+                filtered.forEach(item => {
+                    const row = document.createElement("tr");
+
+                    const isResolved = item.status === "Resolved";
+                    const statusDotClass = isResolved ? "status-dot" : "status-dot active";
+
+                    row.innerHTML = `
+                        <td style="white-space: nowrap;">${item.opened}</td>
+                        <td>
+                            <span class="severity-badge ${item.severity.toLowerCase()}">${item.severity}</span>
+                        </td>
+                        <td>${item.source}</td>
+                        <td class="alarm-title-col">
+                            <strong>${item.title}</strong>
+                            <span class="alarm-code-tag">${item.code}</span>
+                        </td>
+                        <td>
+                            <span class="${statusDotClass}">${item.status}</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn-view" onclick="openModal('${item.id}')">View</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            document.getElementById("shown-counter").textContent = `${filtered.length} of ${currentAlarmHistory.length} shown`;
+        }
+
+        // ==========================================
+        // 5. UPDATE OBSERVATIONS DATA
+        // ==========================================
+        function updateMachineObservations(machine) {
+            if (!machine) return;
+            if (machine.state) document.getElementById("obs-state").textContent = machine.state;
+            if (machine.plcConnection) document.getElementById("obs-plc-conn").textContent = machine.plcConnection;
+            if (machine.robotStatus) document.getElementById("obs-robot-status").textContent = machine.robotStatus;
+            if (machine.plcTimer !== undefined) document.getElementById("obs-plc-timer").textContent = Number(machine.plcTimer).toFixed(2);
+            if (machine.timerRecorded) document.getElementById("obs-timer-time").textContent = machine.timerRecorded;
+            if (machine.okCount !== undefined && machine.ngCount !== undefined) {
+                document.getElementById("obs-ok-ng").textContent = `${machine.okCount} / ${machine.ngCount}`;
+                document.getElementById("obs-total").textContent = machine.totalCount || (machine.okCount + machine.ngCount);
+            }
+            if (machine.yieldRate && machine.ngRate) {
+                document.getElementById("obs-yield-rate").textContent = `${machine.yieldRate} / ${machine.ngRate}`;
+            }
+            if (machine.counterTime) document.getElementById("obs-counter-time").textContent = machine.counterTime;
+            if (machine.timerRecorded) document.getElementById("obs-record-time").textContent = machine.timerRecorded;
+        }
+
+        // ==========================================
+        // 6. MODAL HANDLER
+        // ==========================================
+        function openModal(alarmId) {
+            const item = currentAlarmHistory.find(a => a.id === alarmId) || currentActiveAlarms.find(a => a.id === alarmId);
+            if (!item) return;
+
+            document.getElementById("modal-title").textContent = item.title;
+            document.getElementById("modal-code").textContent = `${item.code} (Bit: ${item.deviceBit || 'N/A'})`;
+            document.getElementById("modal-severity").innerHTML = `<span class="severity-badge ${item.severity.toLowerCase()}">${item.severity}</span>`;
+            document.getElementById("modal-source").textContent = item.source;
+            document.getElementById("modal-opened").textContent = item.opened;
+            document.getElementById("modal-resolved").textContent = item.resolved || "ยังไม่แก้ไข (Active)";
+            document.getElementById("modal-duration").textContent = item.duration || "--";
+            document.getElementById("modal-desc-text").textContent = item.description || "ไม่มีรายละเอียดเพิ่มเติม";
+            document.getElementById("modal-remedy-text").textContent = item.remedy ? `แนวทางแก้ไข: ${item.remedy}` : "";
+
+            document.getElementById("alarm-modal").style.display = "grid";
+        }
+
+        function closeModal() {
+            document.getElementById("alarm-modal").style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById("alarm-modal");
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // ==========================================
+        // 7. TOGGLE MACHINE DETAILS ACCORDION
+        // ==========================================
+        function toggleMachineDetails() {
+            const panel = document.getElementById("details-panel");
+            const btn = document.getElementById("details-toggle-btn");
+            const isHidden = panel.style.display === "none";
+            panel.style.display = isHidden ? "grid" : "none";
+            btn.textContent = isHidden ? "Hide" : "Show";
+        }
+
+        // ==========================================
+        // 8. SIDEBAR TOGGLE
+        // ==========================================
+        function toggleSidebar() {
+            const sidebar = document.querySelector(".sidebar");
+            const main = document.querySelector(".main");
+            const collapsed = sidebar.style.width === "65px";
+
+            sidebar.style.width = collapsed ? "218px" : "65px";
+            main.style.marginLeft = collapsed ? "218px" : "65px";
+
+            document.querySelectorAll(".brand > div:last-child, .nav-text, .collapse span").forEach(el => {
+                el.style.display = collapsed ? "" : "none";
+            });
+        }
+
+        // ==========================================
+        // 9. CLOCK & POLLING TIMER
+        // ==========================================
+        function updateClock() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString("en-GB"); // DD/MM/YYYY
+            const timeStr = now.toLocaleTimeString("th-TH");
+            document.getElementById("current-clock").textContent = `${dateStr}, ${timeStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // รัน AJAX ครั้งแรกเมื่อเปิดหน้าเว็บ
+        fetchAlarmDataAjax();
+
+        // ตั้งเวลา AJAX Auto-sync ทุกๆ 3 วินาที
+        setInterval(fetchAlarmDataAjax, 3000);
+    </script>
+
+</body>
+
+</html>
